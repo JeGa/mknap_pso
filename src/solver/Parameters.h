@@ -15,7 +15,7 @@ namespace mknap_pso
 
             static Parameters getDefaultParameters();
 
-            int getNumberOfParticles() { return numberOfParticles }
+            int getNumberOfParticles() { return numberOfParticles; }
     };
 
 }

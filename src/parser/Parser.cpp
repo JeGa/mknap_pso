@@ -80,6 +80,11 @@ namespace mknap_pso
         }
     }
 
+    std::vector<std::shared_ptr<KnapsackProblem>> Parser::getProblems()
+    {
+        return problems;
+    }
+
     std::string Parser::toString()
     {
         std::stringstream sstr;

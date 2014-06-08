@@ -2,10 +2,10 @@
 #define SOLVER_H
 
 #include "KnapsackProblem.h"
-
 #include "Swarm.h"
 #include "Particle.h"
 #include "Parameters.h"
+#include "Parser.h"
 
 #include <vector>
 
@@ -22,6 +22,9 @@ namespace mknap_pso
     class Solver
     {
         private:
+            Parser parser;
+            KnapsackProblem *currentProblem;
+
             Parameters parameters;
             Swarm swarm;
 
@@ -29,11 +32,18 @@ namespace mknap_pso
              * sum{j=1,...,n} p(j)x(j)
              */
             int calculateProfit(Solution s, Profit profits);
+
             Solution getRandomSolution(int size);
+
+            void initializeParticles();
+
+            void findSolution();
 
         public:
             Solver();
             ~Solver();
+
+            void solveProblem(KnapsackProblem *problem);
     };
 
 }

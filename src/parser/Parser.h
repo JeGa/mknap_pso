@@ -52,6 +52,8 @@ namespace mknap_pso
 
             void parseFile(const std::string &file);
             std::string toString();
+
+            std::vector<std::shared_ptr<KnapsackProblem>> getProblems();
     };
 
 }
