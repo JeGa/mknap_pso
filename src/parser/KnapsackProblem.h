@@ -13,6 +13,10 @@
 
 namespace mknap_pso
 {
+    typedef std::vector<int> Profit;
+    typedef std::vector<int> ConstraintValues;
+    typedef std::vector<ConstraintValues> Constraint;
+    typedef std::vector<int> Capacity;
 
     struct KnapsackProblem {
         int n; // Nr. of elements to pack
@@ -20,13 +24,13 @@ namespace mknap_pso
         int solution;
 
         // Index (j) = element (count = n)
-        std::vector<int> profit;
+        Profit profit;
 
         // Index (i, j) => i=constraints ; j=elements
-        std::vector<std::vector<int>> constraint;
+        Constraint constraint;
 
         // (count = m)
-        std::vector<int> capacity;
+        Capacity capacity;
 
         std::string toString();
     };

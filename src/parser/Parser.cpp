@@ -58,8 +58,8 @@ namespace mknap_pso
     void Parser::parseConstraintsOfProblem(KnapsackProblem* p)
     {
         for (int i = 0; i < p->m; ++i) {
-            std::vector<int> constraint;
-            p->constraint.push_back(constraint);
+            ConstraintValues constraintValues;
+            p->constraint.push_back(constraintValues);
 
             for (int j = 0; j < p->n; ++j) {
                 int constraintValue;

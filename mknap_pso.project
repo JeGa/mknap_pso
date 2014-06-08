@@ -25,6 +25,12 @@
     <VirtualDirectory Name="solver">
       <File Name="src/solver/Solver.cpp"/>
       <File Name="src/solver/Solver.h"/>
+      <File Name="src/solver/Parameters.h"/>
+      <File Name="src/solver/Parameters.cpp"/>
+      <File Name="src/solver/Particle.h"/>
+      <File Name="src/solver/Particle.cpp"/>
+      <File Name="src/solver/Swarm.h"/>
+      <File Name="src/solver/Swarm.cpp"/>
     </VirtualDirectory>
   </VirtualDirectory>
   <Description/>
