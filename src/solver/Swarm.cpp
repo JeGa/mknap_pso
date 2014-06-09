@@ -5,7 +5,6 @@ namespace mknap_pso
 
     Swarm::Swarm()
     {
-
     }
 
     Swarm::~Swarm()

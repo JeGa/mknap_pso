@@ -11,7 +11,7 @@ namespace mknap_pso
     class Swarm
     {
         private:
-            int gBest; // Fitness value
+            int gBest = 0; // Fitness value
             std::vector<Particle> particles;
 
         public:

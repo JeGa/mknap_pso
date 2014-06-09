@@ -1,7 +1,8 @@
 #include "Solver.h"
 
-#include <cstdlib>
-#include <ctime>
+#include <random>
+#include <iostream>
+#include <stdexcept>
 
 namespace mknap_pso
 {
@@ -26,6 +27,32 @@ namespace mknap_pso
         currentProblem = 0;
     }
 
+    void Solver::initializeParticles()
+    {
+        for (auto i : swarm.getParticles()) {
+            Solution position = getRandomSolution();
+            Solution velocity = getRandomSolution();
+
+            i.setPosition(position);
+            i.setVelocity(velocity); // TODO
+
+            // Fitness value / Profit of the solution/position.
+            int profit = calculateProfit(position);
+            i.setBestKnownPosition(profit);
+
+            // Check if this solution is better than the global solution.
+            if (profit > swarm.getBestGlobalPosition())
+                swarm.setBestGlobalPosition(profit);
+
+            /*for (auto i : position) {
+                std::cout << i;
+            }*/
+            std::cout << "\n====\n";
+        }
+
+        std::cerr << std::endl << "GBEST: " << swarm.getBestGlobalPosition() << std::endl;
+    }
+
     void Solver::findSolution()
     {
         for (auto i : swarm.getParticles()) {
@@ -40,47 +67,34 @@ namespace mknap_pso
         }
     }
 
-    void Solver::initializeParticles()
+    int Solver::calculateProfit(Solution solution)
     {
-        for (auto i : swarm.getParticles()) {
-            Solution position = getRandomSolution(currentProblem->n);
-            Solution velocity = getRandomSolution(currentProblem->n);
-
-            i.setPosition(position);
-            i.setVelocity(velocity); // TODO
-
-            // Fitness value / Profit of the solutio/position.
-            int profit = calculateProfit(position, currentProblem->profit);
-            i.setBestKnownPosition(profit);
-
-            // Check if this solution is better than the global solution.
-            if (profit > swarm.getBestGlobalPosition())
-                swarm.setBestGlobalPosition(profit);
-        }
-    }
-
-    int Solver::calculateProfit(Solution solution, Profit profits)
-    {
-        if (solution.size() != profits.size())
+        if (solution.size() != currentProblem->profit.size())
             throw std::invalid_argument("Size of the arguments is not equal.");
 
         int sum = 0;
 
         for (unsigned int i = 0; i < solution.size(); ++i)
-            sum += (static_cast<int>(solution.at(i)) * profits.at(i));
+            sum += (static_cast<int>(solution.at(i)) *currentProblem->profit.at(i));
 
         return sum;
     }
 
-    Solution Solver::getRandomSolution(int size)
+    Solution Solver::getRandomSolution()
     {
         Solution solution;
 
-        std::srand(std::time(0));
+        std::random_device rd;
 
-        for (int i = 0; i < size; ++i) {
-            int randomVariable = std::rand();
-            solution.push_back(static_cast<bool>(randomVariable % 2));
+        std::default_random_engine engine(rd());
+        std::uniform_int_distribution<int> uniform_dist(0, 5);
+
+        for (int i = 0; i < currentProblem->n; ++i) {
+            int randomVariable = uniform_dist(engine);
+
+            std::cout << randomVariable;
+
+            solution.push_back(static_cast<bool>(randomVariable));
         }
 
         return solution;
