@@ -12,17 +12,24 @@ namespace mknap_pso
     {
         private:
             int gBest = 0; // Fitness value
+            Solution gBestPosition;
+
             std::vector<Particle> particles;
 
         public:
-            Swarm();
-            ~Swarm();
+            Swarm() {}
+            ~Swarm() {}
 
             void initializeSwarm(int numberOfParticles);
-            void setBestGlobalPosition(int gBest);
+            void setBestPositionAndValue(Solution gBestPosition, int gBest);
 
             std::vector<Particle> &getParticles();
-            int getBestGlobalPosition();
+
+            /**
+             * @return The fitness value of the best global position.
+             */
+            int getBestValue();
+            Solution &getBestPosition();
     };
 
 }

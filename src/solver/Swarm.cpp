@@ -3,29 +3,23 @@
 namespace mknap_pso
 {
 
-    Swarm::Swarm()
-    {
-    }
-
-    Swarm::~Swarm()
-    {
-    }
-
     void Swarm::initializeSwarm(int numberOfParticles)
     {
-        particles.clear();
         gBest = 0;
+        gBestPosition.clear();
+
+        particles.clear();
 
         for (int i = 0; i < numberOfParticles; ++i) {
-            Particle p;
-
+            Particle p; // TODO: emplace_back ?
             particles.push_back(p);
         }
     }
 
-    void Swarm::setBestGlobalPosition(int gBest)
+    void Swarm::setBestPositionAndValue(Solution gBestPosition, int gBest)
     {
         this->gBest = gBest;
+        this->gBestPosition = gBestPosition;
     }
 
     std::vector<Particle> &Swarm::getParticles()
@@ -33,9 +27,14 @@ namespace mknap_pso
         return particles;
     }
 
-    int Swarm::getBestGlobalPosition()
+    int Swarm::getBestValue()
     {
         return gBest;
+    }
+
+    Solution &Swarm::getBestPosition()
+    {
+        return gBestPosition;
     }
 
 }

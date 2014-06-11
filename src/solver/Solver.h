@@ -7,16 +7,10 @@
 #include "Parameters.h"
 
 #include <vector>
+#include <random>
 
 namespace mknap_pso
 {
-
-    /**
-     * A solution is described as 0/1 vector.
-     * x(j) = 1, Element is packed
-     * x(j) = 0, Element is not packed
-     */
-    typedef std::vector<bool> Solution;
 
     class Solver
     {
@@ -24,7 +18,12 @@ namespace mknap_pso
             KnapsackProblem *currentProblem = 0;
 
             Parameters parameters;
+
             Swarm swarm;
+
+            // Random generator stuff
+            std::random_device rd;
+            std::default_random_engine engine;
 
             /**
              * sum{j=1,...,n} p(j)x(j)
@@ -37,6 +36,15 @@ namespace mknap_pso
              */
             Solution getRandomSolution();
 
+            Velocity getRandomVelocity();
+
+            int getRandomIntegerValue(int lowerBound, int upperBound);
+
+            double getRandomDoubleValue(double lowerBound, double upperBound);
+
+            /**
+             * Initializes every particle with a random solution.
+             */
             void initializeParticles();
 
             void findSolution();

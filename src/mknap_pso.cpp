@@ -12,6 +12,8 @@ int main(int argc, char **argv)
     mknap_pso::Parser parser;
     parser.parseFile(FILE_NAME);
 
+    std::cout << "Starting pso\n";
+
     for (auto &i : parser.getProblems()) {
         solver.solveProblem(i.get());
     }

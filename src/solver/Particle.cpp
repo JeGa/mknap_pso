@@ -3,27 +3,40 @@
 namespace mknap_pso
 {
 
-    Particle::Particle()
-    {
-    }
-
-    Particle::~Particle()
-    {
-    }
-
     void Particle::setPosition(Solution position)
     {
         this->position = position;
     }
 
-    void Particle::setBestKnownPosition(int pBest)
+    void Particle::setBestPositionAndValue(Solution pBestPosition, int pBest)
     {
         this->pBest = pBest;
+        this->pBestPosition = pBestPosition;
     }
 
-    void Particle::setVelocity(Solution velocity)
+    void Particle::setVelocity(Velocity velocity)
     {
         this->velocity = velocity;
+    }
+
+    Solution &Particle::getPosition()
+    {
+        return position;
+    }
+
+    Velocity &Particle::getVelocity()
+    {
+        return velocity;
+    }
+
+    Solution &Particle::getBestPosition()
+    {
+        return pBestPosition;
+    }
+
+    int Particle::getBestValue()
+    {
+        return pBest;
     }
 
 }

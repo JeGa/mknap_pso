@@ -59,7 +59,7 @@
       </Compiler>
       <Linker Options="" Required="yes"/>
       <ResourceCompiler Options="" Required="no"/>
-      <General OutputFile="mknap_pso" IntermediateDirectory="./build" Command="F:/jens_c++_projects/workspace/mknap_pso/build/mknap_pso.exe" CommandArguments="" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="F:/jens_c++_projects/workspace/mknap_pso/build" PauseExecWhenProcTerminates="yes" IsGUIProgram="no" IsEnabled="yes"/>
+      <General OutputFile="mknap_pso" IntermediateDirectory="./build" Command="E:/Data/HTWG/Semester 6/AI2/workspace/mknap_pso/build/mknap_pso.exe" CommandArguments="" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="E:/Data/HTWG/Semester 6/AI2/workspace/mknap_pso/build" PauseExecWhenProcTerminates="yes" IsGUIProgram="no" IsEnabled="yes"/>
       <Environment EnvVarSetName="&lt;Use Defaults&gt;" DbgSetName="&lt;Use Defaults&gt;">
         <![CDATA[]]>
       </Environment>
@@ -73,8 +73,8 @@
       <CustomBuild Enabled="yes">
         <Target Name="Generate Makefile">cmake -G "MinGW Makefiles" ..</Target>
         <RebuildCommand/>
-        <CleanCommand>make clean</CleanCommand>
-        <BuildCommand>make</BuildCommand>
+        <CleanCommand>mingw32-make clean</CleanCommand>
+        <BuildCommand>mingw32-make</BuildCommand>
         <PreprocessFileCommand/>
         <SingleFileCommand/>
         <MakefileGenerationCommand/>
