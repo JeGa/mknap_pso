@@ -1,7 +1,18 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 2.8.11)
 project(mknap_pso)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -g")
+
+# Qt
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+set(CMAKE_PREFIX_PATH "E:/Programs/Qt/5.3/mingw482_32")
+find_package(Qt5Widgets REQUIRED)
+
+file(GLOB_RECURSE ui_FORMS "ui/*.ui")
+file(GLOB_RECURSE qrc_RESOURCES "res/*.qrc")
+qt5_wrap_ui(ui_SOURCES ${ui_FORMS})
+qt5_add_resources(qrc_SOURCES ${qrc_RESOURCES})
 
 file(GLOB_RECURSE mknap_pso_SOURCES "src/*.cpp")
 file(GLOB_RECURSE mknap_pso_HEADERS "src/*.h")
@@ -16,4 +27,5 @@ list(REMOVE_DUPLICATES mknap_pso_INCLUDE_DIRS)
 include_directories(${mknap_pso_INCLUDE_DIRS})
 include_directories("include")
 
-add_executable(mknap_pso ${mknap_pso_SOURCES})
+add_executable(mknap_pso ${mknap_pso_SOURCES} ${ui_SOURCES} ${qrc_SOURCES})
+target_link_libraries(mknap_pso Qt5::Widgets)

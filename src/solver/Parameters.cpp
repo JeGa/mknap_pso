@@ -15,7 +15,7 @@ namespace mknap_pso
     {
         Parameters p;
 
-        p.numberOfParticles = 20;
+        p.numberOfParticles = 10;
         p.constant1 = 2;
         p.constant2 = 2;
         p.iterations = 10;

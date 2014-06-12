@@ -7,7 +7,6 @@
 #include "Parameters.h"
 
 #include <vector>
-#include <random>
 
 namespace mknap_pso
 {
@@ -21,14 +20,33 @@ namespace mknap_pso
 
             Swarm swarm;
 
-            // Random generator stuff
-            std::random_device rd;
-            std::default_random_engine engine;
-
             /**
              * sum{j=1,...,n} p(j)x(j)
              */
-            int calculateProfit(Solution s);
+            int calculateProfit(Solution &s);
+
+            /**
+             * Calculates the ressource value of the given constraint
+             * in the given solution.
+             *
+             * @param position The solution to be checked
+             * @param index_m The constraint (index) to be checked to
+             *
+             * sum{j=1,...,n} r(i,j)x(j) <= b(i) ; i=1,...,m
+             *
+             * => index_m = i
+             *
+             * @return The ressource sum value of the given ressource.
+             */
+            int getConstraintValue(Solution &position, int index_m);
+
+            /**
+             * @retval 0 Constraint is not violated
+             * @retval >0 The distance (difference) value
+             */
+            int checkConstraint(Solution &position, int index_m);
+
+            int getTotalOfAllWeights(int index_m);
 
             /**
              * Generates a solution with uniformly distributed

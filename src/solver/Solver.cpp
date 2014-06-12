@@ -1,10 +1,10 @@
 #include "Solver.h"
 
-#include <random>
 #include <iostream>
 #include <stdexcept>
 
 #include <cstdlib>
+#include <ctime>
 
 // Faster with abs than with exp
 #define sig(x) (1 / (1 + abs(-x)))
@@ -12,9 +12,10 @@
 namespace mknap_pso
 {
 
-    Solver::Solver() : engine(rd())
+    Solver::Solver()
     {
         parameters = Parameters::getDefaultParameters();
+        std::srand(std::time(0));
     }
 
     Solver::~Solver()
@@ -24,6 +25,12 @@ namespace mknap_pso
     void Solver::solveProblem(KnapsackProblem *problem)
     {
         currentProblem = problem;
+
+        std::cout << "==============================\n";
+        std::cout << "Solving problem: " << std::endl;
+        std::cout << "Nr. of elements: " << currentProblem->n << std::endl;
+        std::cout << "Nr. of constraints: " << currentProblem->m << std::endl;
+        std::cout << "==============================\n";
 
         swarm.initializeSwarm(parameters.getNumberOfParticles());
         initializeParticles();
@@ -42,13 +49,8 @@ namespace mknap_pso
 
     void Solver::initializeParticles()
     {
-        for (auto i : swarm.getParticles()) {
-            std::cin.ignore();
-
+        for (auto &i : swarm.getParticles()) {
             Solution position = getRandomSolution();
-
-            std::cin.ignore();
-
             Velocity velocity = getRandomVelocity();
 
             i.setPosition(position);
@@ -64,20 +66,20 @@ namespace mknap_pso
 
             /*for (auto i : position) {
                 std::cout << i;
-            }*/
+            }
             std::cout << "\n====\n";
+            for (auto i : velocity) {
+                std::cout << i;
+            }
+            std::cout << "\n====\n";*/
         }
     }
 
     void Solver::findSolution()
     {
-        for (auto i : swarm.getParticles()) {
-            std::cin.ignore();
-
+        for (auto &i : swarm.getParticles()) {
             int randomParticleNumber = getRandomIntegerValue(0, 1);
             int randomGlobalNumber = getRandomIntegerValue(0, 1);
-
-            std::cin.ignore();
 
             Velocity newVelocity;
             Solution newPosition;
@@ -89,7 +91,6 @@ namespace mknap_pso
              * j = dimension
              */
             for (int j = 0; j < currentProblem->n; ++j) {
-
                 int currentPositionD = i.getPosition().at(j);
                 double currentVelocityD = i.getVelocity().at(j);
 
@@ -109,6 +110,7 @@ namespace mknap_pso
                 // Calculate new position
                 // TODO: Updated formular from Qi
                 double randomValue = getRandomDoubleValue(0.0, 1.0);
+
                 int newPositionD;
                 if (randomValue < newVelocityD)
                     newPositionD = 1;
@@ -122,9 +124,29 @@ namespace mknap_pso
             i.setVelocity(newVelocity);
             i.setPosition(newPosition);
 
-            // Update pBest and gBest position/solution
             int pBestTmp = calculateProfit(i.getPosition());
+            int penaltyValue = 0;
 
+            // Penalty function if constraint is violated
+            for (int i = 0; i < currentProblem->m; ++i) {
+
+                // Check constraint i
+                int dist = checkConstraint(newPosition, i);
+
+                if (dist) {
+                    // Constraint violated
+
+                    // Get total of all weights (TW)
+                    int diff = std::min(currentProblem->capacity.at(i), getTotalOfAllWeights(i));
+
+                    // Sum up with penalty function
+                    penaltyValue += (int) (pBestTmp * ((double) dist / (double) diff)); // Penalty function
+                }
+            }
+
+            pBestTmp -= penaltyValue;
+
+            // Update pBest and gBest position/solution
             if (pBestTmp > i.getBestValue()) {
                 i.setBestPositionAndValue(i.getPosition(), pBestTmp);
 
@@ -134,7 +156,7 @@ namespace mknap_pso
         }
     }
 
-    int Solver::calculateProfit(Solution solution)
+    int Solver::calculateProfit(Solution &solution)
     {
         if (solution.size() != currentProblem->profit.size())
             throw std::invalid_argument("Size of the arguments is not equal.");
@@ -147,14 +169,42 @@ namespace mknap_pso
         return sum;
     }
 
+    int Solver::getConstraintValue(Solution &position, int index_m)
+    {
+        int sum = 0;
+
+        for (int i = 0; i < currentProblem->n; ++i)
+            sum += static_cast<int>(position.at(i)) * currentProblem->constraint.at(index_m).at(i);
+
+        return sum;
+    }
+
+    int Solver::checkConstraint(Solution &position, int index_m)
+    {
+        int constraintValue = getConstraintValue(position, index_m);
+        int capacity = currentProblem->capacity.at(index_m);
+
+        if (constraintValue > capacity)
+            return constraintValue - capacity;
+        return 0;
+    }
+
+    int Solver::getTotalOfAllWeights(int index_m)
+    {
+        int sum = 0;
+
+        for (auto &i : currentProblem->constraint.at(index_m))
+            sum += i;
+
+        return sum;
+    }
+
     Solution Solver::getRandomSolution()
     {
         Solution solution;
 
         for (int i = 0; i < currentProblem->n; ++i) {
             int randomVariable = getRandomIntegerValue(0, 1);
-
-            std::cout << randomVariable;
 
             solution.push_back(static_cast<bool>(randomVariable));
         }
@@ -167,9 +217,7 @@ namespace mknap_pso
         Velocity velocity;
 
         for (int i = 0; i < currentProblem->n; ++i) {
-            int randomVariable = getRandomDoubleValue(0.0, 1.0);
-
-            std::cout << randomVariable;
+            double randomVariable = getRandomDoubleValue(0.0, 1.0);
 
             velocity.push_back(randomVariable);
         }
@@ -179,22 +227,16 @@ namespace mknap_pso
 
     int Solver::getRandomIntegerValue(int lowerBound, int upperBound)
     {
-        /*std::random_device rd;
+        int randomVariable = lowerBound + (std::rand() % (upperBound - lowerBound + 1));
 
-        std::default_random_engine engine(rd());*/
-        std::uniform_int_distribution<int> uniform_dist(lowerBound, upperBound);
-
-        return 0;//uniform_dist(engine);
+        return randomVariable;
     }
 
     double Solver::getRandomDoubleValue(double lowerBound, double upperBound)
     {
-        /*std::random_device rd;
+        double randomVariable = (double) std::rand() / RAND_MAX;
 
-        std::default_random_engine engine(rd());*/
-        std::uniform_real_distribution<double> uniform_dist(lowerBound, upperBound);
-
-        return 0;//uniform_dist(engine);
+        return lowerBound + randomVariable * (upperBound - lowerBound);
     }
 
 }

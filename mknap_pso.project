@@ -32,6 +32,10 @@
       <File Name="src/solver/Swarm.h"/>
       <File Name="src/solver/Swarm.cpp"/>
     </VirtualDirectory>
+    <VirtualDirectory Name="gui">
+      <File Name="src/gui/MainWindow.cpp"/>
+      <File Name="src/gui/MainWindow.h"/>
+    </VirtualDirectory>
   </VirtualDirectory>
   <Description/>
   <Dependencies/>
@@ -43,7 +47,7 @@
   <VirtualDirectory Name="res">
     <File Name="res/mknapcb1.txt"/>
   </VirtualDirectory>
-  <Settings Type="Dynamic Library">
+  <Settings Type="Executable">
     <GlobalSettings>
       <Compiler Options="" C_Options="" Assembler="">
         <IncludePath Value="."/>
@@ -53,7 +57,7 @@
       </Linker>
       <ResourceCompiler Options=""/>
     </GlobalSettings>
-    <Configuration Name="Debug" CompilerType="MinGW ( CodeLite-4.8.1 )" DebuggerType="GNU gdb debugger" Type="Dynamic Library" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
+    <Configuration Name="Debug" CompilerType="MinGW ( CodeLite-4.8.1 )" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
       <Compiler Options="-g" C_Options="-g" Assembler="" Required="no" PreCompiledHeader="" PCHInCommandLine="no" UseDifferentPCHFlags="no" PCHFlags="">
         <IncludePath Value="."/>
       </Compiler>
