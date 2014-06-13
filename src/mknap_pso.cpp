@@ -1,22 +1,13 @@
-#include "Solver.h"
-#include "Parser.h"
+#include "MainWindow.h"
 
-#include <iostream>
-
-#define FILE_NAME "../res/mknapcb1.txt"
+#include <QApplication>
 
 int main(int argc, char **argv)
 {
-    mknap_pso::Solver solver;
+    QApplication app(argc, argv);
+    mknap_pso::MainWindow window;
+    window.show();
 
-    mknap_pso::Parser parser;
-    parser.parseFile(FILE_NAME);
-
-    std::cout << "Starting pso\n";
-
-    for (auto &i : parser.getProblems()) {
-        solver.solveProblem(i.get());
-    }
-
-    return 0;
+    app.connect(&app, SIGNAL(lastWindowClosed()), &app, SLOT(quit()));
+    return app.exec();
 }

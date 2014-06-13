@@ -54,6 +54,7 @@ namespace mknap_pso
             std::string toString();
 
             std::vector<std::shared_ptr<KnapsackProblem>> getProblems();
+            std::vector<std::shared_ptr<KnapsackProblem>> &getProblemsReference();
     };
 
 }

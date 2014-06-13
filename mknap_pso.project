@@ -35,6 +35,8 @@
     <VirtualDirectory Name="gui">
       <File Name="src/gui/MainWindow.cpp"/>
       <File Name="src/gui/MainWindow.h"/>
+      <File Name="src/gui/MouseMonitorPlot.cpp"/>
+      <File Name="src/gui/MouseMonitorPlot.h"/>
     </VirtualDirectory>
   </VirtualDirectory>
   <Description/>

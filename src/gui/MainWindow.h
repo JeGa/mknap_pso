@@ -1,6 +1,9 @@
 #ifndef MAIN_WINDOW_H
 #define MAIN_WINDOW_H
 
+#include "Solver.h"
+#include "Parser.h"
+
 #include <QMainWindow>
 #include <QWidget>
 
@@ -14,6 +17,14 @@ namespace mknap_pso
             Q_OBJECT
 
         private:
+            mknap_pso::Solver solver;
+            mknap_pso::Parser parser;
+
+        private slots:
+            void solveBtnClicked();
+            void openFile();
+            void about();
+            void tableItemClicked(QTableWidgetItem *item);
 
         public:
             MainWindow(QWidget *parent = 0);

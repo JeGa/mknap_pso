@@ -6,8 +6,9 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -g")
 # Qt
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
-set(CMAKE_PREFIX_PATH "E:/Programs/Qt/5.3/mingw482_32")
+set(CMAKE_PREFIX_PATH "E:/Programs/Qt/5.3/mingw482_32" "E:/Programs/Qwt-6.1.0")
 find_package(Qt5Widgets REQUIRED)
+find_package(Qwt REQUIRED)
 
 file(GLOB_RECURSE ui_FORMS "ui/*.ui")
 file(GLOB_RECURSE qrc_RESOURCES "res/*.qrc")
@@ -26,6 +27,7 @@ list(REMOVE_DUPLICATES mknap_pso_INCLUDE_DIRS)
 
 include_directories(${mknap_pso_INCLUDE_DIRS})
 include_directories("include")
+include_directories(${QWT_INCLUDE_DIR})
 
 add_executable(mknap_pso ${mknap_pso_SOURCES} ${ui_SOURCES} ${qrc_SOURCES})
-target_link_libraries(mknap_pso Qt5::Widgets)
+target_link_libraries(mknap_pso Qt5::Widgets ${QWT_LIBRARY})
