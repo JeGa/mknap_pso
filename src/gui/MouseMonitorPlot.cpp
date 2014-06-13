@@ -1,6 +1,6 @@
 #include "MouseMonitorPlot.h"
 
-#define DEFAULT_X_STEP 50
+#define DEFAULT_X_STEP 20
 #define DEFAULT_Y_STEP 1000
 #define DEFAULT_MAX_SIZE 400
 
@@ -39,6 +39,14 @@ namespace minotaur
             xData.clear();
             yData.clear();
         }
+
+        replot();
+    }
+
+    void MouseMonitorPlot::clear()
+    {
+        xData.clear();
+        yData.clear();
 
         replot();
     }

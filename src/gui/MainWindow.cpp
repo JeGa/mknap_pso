@@ -17,25 +17,50 @@ namespace mknap_pso
         connect(actionAbout, SIGNAL(triggered()), this, SLOT(about()));
         connect(solveBtn, SIGNAL(clicked()), this, SLOT(solveBtnClicked()));
         connect(table, SIGNAL(itemClicked(QTableWidgetItem *)), this, SLOT(tableItemClicked(QTableWidgetItem *)));
+        connect(actionSet_parameter, SIGNAL(triggered()), this, SLOT(openSettingsDialog()));
 
         consoleEdit->append("> Choose file with multidimensional (multi-constraint) knapsack problem to solve.");
+
+        settingsDialog = new SettingsDialog();
+        plot = new minotaur::MouseMonitorPlot();
+        plot->init(Qt::blue, "Global best fitness value", "Iteration", "Fitness value");
+        graphLayout->layout()->addWidget(plot);
     }
 
     MainWindow::~MainWindow()
     {
+        delete settingsDialog;
+        delete plot;
     }
 
     void MainWindow::solveBtnClicked()
     {
         //for (auto &i : parser.getProblems()) {
 
+        plot->clear();
+
+        solver.setParameters(settingsDialog->getParameters());
+
         QList<QTableWidgetItem *> items = table->selectedItems();
-        //if (items.size() == 1) {
+        if (items.size() >= 1) {
             int row = items.at(0)->row();
+
             QString outTxt = "> Solving problem " + QString::number(row);
             consoleEdit->append(outTxt);
-            solver.solveProblem(parser.getProblemsReference().at(row).get());
-        //}
+
+            solver.startSolveProblem(parser.getProblemsReference().at(row));
+
+            for (int i = 0; i < 400; ++i) {
+                int gBest = solver.solveProblemIteration();
+
+                QString outTxt = "> Iteration: " + QString::number(i+1) + " Value: " + QString::number(gBest);
+                consoleEdit->append(outTxt);
+
+                plot->updatePlot(gBest);
+            }
+
+            solver.stopSolveProblem();
+        }
     }
 
     void MainWindow::openFile()
@@ -104,6 +129,11 @@ namespace mknap_pso
 
             ++j;
         }
+    }
+
+    void MainWindow::openSettingsDialog()
+    {
+        settingsDialog->setVisible(true);
     }
 
     void MainWindow::about()

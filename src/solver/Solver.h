@@ -7,6 +7,7 @@
 #include "Parameters.h"
 
 #include <vector>
+#include <memory>
 
 namespace mknap_pso
 {
@@ -14,7 +15,7 @@ namespace mknap_pso
     class Solver
     {
         private:
-            KnapsackProblem *currentProblem = 0;
+            std::shared_ptr<KnapsackProblem> currentProblem = 0;
 
             Parameters parameters;
 
@@ -24,6 +25,8 @@ namespace mknap_pso
              * sum{j=1,...,n} p(j)x(j)
              */
             int calculateProfit(Solution &s);
+
+            int calculatePenalty(Solution &newPosition, int pBestTmp);
 
             /**
              * Calculates the ressource value of the given constraint
@@ -71,7 +74,17 @@ namespace mknap_pso
             Solver();
             ~Solver();
 
-            void solveProblem(KnapsackProblem *problem);
+            void solveProblem(std::shared_ptr<KnapsackProblem> problem);
+
+            void setParameters(Parameters parameters);
+
+            /**
+             * The following functions are for manual usage.
+             * (Do the steps manually from outside).
+             */
+             void startSolveProblem(std::shared_ptr<KnapsackProblem> problem);
+             int solveProblemIteration();
+             void stopSolveProblem();
     };
 
 }

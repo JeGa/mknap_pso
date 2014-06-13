@@ -22,7 +22,38 @@ namespace mknap_pso
     {
     }
 
-    void Solver::solveProblem(KnapsackProblem *problem)
+    void Solver::setParameters(Parameters parameters)
+    {
+        this->parameters = parameters;
+    }
+
+    void Solver::startSolveProblem(std::shared_ptr<KnapsackProblem> problem)
+    {
+        currentProblem = problem;
+
+        swarm.initializeSwarm(parameters.getNumberOfParticles());
+        initializeParticles();
+    }
+
+    int Solver::solveProblemIteration()
+    {
+        if (currentProblem == 0)
+            throw std::domain_error("Call startSolveProblem() first.");
+
+        findSolution();
+
+        return swarm.getBestValue();
+    }
+
+    void Solver::stopSolveProblem()
+    {
+        if (currentProblem == 0)
+            throw std::domain_error("Call startSolveProblem() first.");
+
+        currentProblem = 0;
+    }
+
+    void Solver::solveProblem(std::shared_ptr<KnapsackProblem> problem)
     {
         currentProblem = problem;
 
@@ -58,6 +89,8 @@ namespace mknap_pso
 
             // Fitness value / Profit of the solution/position.
             int profit = calculateProfit(position);
+            //profit -= calculatePenalty(position, profit);
+
             i.setBestPositionAndValue(position, profit);
 
             // Check if this solution is better than the global solution.
@@ -99,10 +132,12 @@ namespace mknap_pso
 
                 // TODO: At parameter omega (inertia weight)
                 double newVelocityD = currentVelocityD +
-                                      parameters.getConstant1() * randomParticleNumber * (pBestD - currentPositionD) +
-                                      parameters.getConstant2() * randomGlobalNumber * (gBestD - currentPositionD);
+                                      parameters.getConstant1() * /*randomParticleNumber * */ (pBestD - currentPositionD) +
+                                      parameters.getConstant2() * /*randomGlobalNumber * */ (gBestD - currentPositionD);
 
                 // TODO: Limit velocity with Vmax
+                if (newVelocityD > 6.0)
+                    newVelocityD = 6.0;
 
                 // Logistic transformation
                 newVelocityD = sig(newVelocityD);
@@ -125,26 +160,7 @@ namespace mknap_pso
             i.setPosition(newPosition);
 
             int pBestTmp = calculateProfit(i.getPosition());
-            int penaltyValue = 0;
-
-            // Penalty function if constraint is violated
-            for (int i = 0; i < currentProblem->m; ++i) {
-
-                // Check constraint i
-                int dist = checkConstraint(newPosition, i);
-
-                if (dist) {
-                    // Constraint violated
-
-                    // Get total of all weights (TW)
-                    int diff = std::min(currentProblem->capacity.at(i), getTotalOfAllWeights(i));
-
-                    // Sum up with penalty function
-                    penaltyValue += (int) (pBestTmp * ((double) dist / (double) diff)); // Penalty function
-                }
-            }
-
-            pBestTmp -= penaltyValue;
+            pBestTmp -= calculatePenalty(i.getPosition(), pBestTmp); // TODO: Problem here
 
             // Update pBest and gBest position/solution
             if (pBestTmp > i.getBestValue()) {
@@ -167,6 +183,30 @@ namespace mknap_pso
             sum += (static_cast<int>(solution.at(i)) *currentProblem->profit.at(i));
 
         return sum;
+    }
+
+    int Solver::calculatePenalty(Solution &newPosition, int pBestTmp)
+    {
+        int penaltyValue = 0;
+
+        // Penalty function if constraint is violated
+        for (int i = 0; i < currentProblem->m; ++i) {
+
+            // Check constraint i
+            int dist = checkConstraint(newPosition, i);
+
+            if (dist) {
+                // Constraint violated
+
+                // Get total of all weights (TW)
+                int diff = std::min(currentProblem->capacity.at(i), getTotalOfAllWeights(i));
+
+                // Sum up with penalty function
+                penaltyValue += (int) (pBestTmp * ((double) dist / (double) diff)); // Penalty function
+            }
+        }
+
+        return penaltyValue;
     }
 
     int Solver::getConstraintValue(Solution &position, int index_m)

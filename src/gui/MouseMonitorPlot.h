@@ -40,6 +40,7 @@ namespace minotaur
                       std::string xAxisTitle,
                       std::string yAxisTitle);
             void updatePlot(double data);
+            void clear();
     };
 
 }

@@ -37,6 +37,8 @@
       <File Name="src/gui/MainWindow.h"/>
       <File Name="src/gui/MouseMonitorPlot.cpp"/>
       <File Name="src/gui/MouseMonitorPlot.h"/>
+      <File Name="src/gui/SettingsDialog.h"/>
+      <File Name="src/gui/SettingsDialog.cpp"/>
     </VirtualDirectory>
   </VirtualDirectory>
   <Description/>

@@ -23,5 +23,15 @@ namespace mknap_pso
         return p;
     }
 
-}
+    void Parameters::set(int numberOfParticles,
+                         int constant1,
+                         int constant2,
+                         int iterations)
+    {
+        this->numberOfParticles = numberOfParticles;
+        this->constant1 = constant1;
+        this->constant2 = constant2;
+        this->iterations = iterations;
+    }
 
+}

@@ -3,6 +3,8 @@
 
 #include "Solver.h"
 #include "Parser.h"
+#include "SettingsDialog.h"
+#include "MouseMonitorPlot.h"
 
 #include <QMainWindow>
 #include <QWidget>
@@ -20,11 +22,16 @@ namespace mknap_pso
             mknap_pso::Solver solver;
             mknap_pso::Parser parser;
 
+            SettingsDialog *settingsDialog;
+
+            minotaur::MouseMonitorPlot *plot;
+
         private slots:
             void solveBtnClicked();
             void openFile();
             void about();
             void tableItemClicked(QTableWidgetItem *item);
+            void openSettingsDialog();
 
         public:
             MainWindow(QWidget *parent = 0);

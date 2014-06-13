@@ -20,10 +20,26 @@ namespace mknap_pso
 
             static Parameters getDefaultParameters();
 
-            int getNumberOfParticles() { return numberOfParticles; }
-            int getConstant1() { return constant1; }
-            int getConstant2() { return constant2; }
-            int getIterations() { return iterations; }
+            void set(int numberOfParticles,
+                     int constant1,
+                     int constant2,
+                     int iterations);
+
+            int getNumberOfParticles() {
+                return numberOfParticles;
+            }
+
+            int getConstant1() {
+                return constant1;
+            }
+
+            int getConstant2() {
+                return constant2;
+            }
+
+            int getIterations() {
+                return iterations;
+            }
     };
 
 }
