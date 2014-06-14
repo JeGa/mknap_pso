@@ -5,9 +5,7 @@
 
 #include <cstdlib>
 #include <ctime>
-
-// Faster with abs than with exp
-#define sig(x) (1 / (1 + abs(-x)))
+#include <cmath>
 
 namespace mknap_pso
 {
@@ -45,12 +43,14 @@ namespace mknap_pso
         return swarm.getBestValue();
     }
 
-    void Solver::stopSolveProblem()
+    int Solver::stopSolveProblem()
     {
         if (currentProblem == 0)
             throw std::domain_error("Call startSolveProblem() first.");
 
         currentProblem = 0;
+
+        return swarm.getBestValue();
     }
 
     void Solver::solveProblem(std::shared_ptr<KnapsackProblem> problem)
@@ -80,6 +80,8 @@ namespace mknap_pso
 
     void Solver::initializeParticles()
     {
+        // Initialize the swarms best position with the lowest value.
+
         for (auto &i : swarm.getParticles()) {
             Solution position = getRandomSolution();
             Velocity velocity = getRandomVelocity();
@@ -89,22 +91,15 @@ namespace mknap_pso
 
             // Fitness value / Profit of the solution/position.
             int profit = calculateProfit(position);
-            //profit -= calculatePenalty(position, profit);
+            profit -= calculatePenalty(position, profit);
 
             i.setBestPositionAndValue(position, profit);
 
             // Check if this solution is better than the global solution.
-            if (profit > swarm.getBestValue())
+            if (!swarm.isGBestInitialized())
                 swarm.setBestPositionAndValue(position, profit);
-
-            /*for (auto i : position) {
-                std::cout << i;
-            }
-            std::cout << "\n====\n";
-            for (auto i : velocity) {
-                std::cout << i;
-            }
-            std::cout << "\n====\n";*/
+            else if (profit > swarm.getBestValue())
+                swarm.setBestPositionAndValue(position, profit);
         }
     }
 
@@ -130,17 +125,15 @@ namespace mknap_pso
                 int pBestD = i.getBestPosition().at(j);
                 int gBestD = swarm.getBestPosition().at(j);
 
-                // TODO: At parameter omega (inertia weight)
-                double newVelocityD = currentVelocityD +
-                                      parameters.getConstant1() * /*randomParticleNumber * */ (pBestD - currentPositionD) +
-                                      parameters.getConstant2() * /*randomGlobalNumber * */ (gBestD - currentPositionD);
+                double newVelocityD = parameters.getInertiaWeight() * currentVelocityD +
+                                      parameters.getConstant1() * randomParticleNumber * (pBestD - currentPositionD) +
+                                      parameters.getConstant2() * randomGlobalNumber * (gBestD - currentPositionD);
 
-                // TODO: Limit velocity with Vmax
-                if (newVelocityD > 6.0)
-                    newVelocityD = 6.0;
+                if (newVelocityD > parameters.getVMax())
+                    newVelocityD = parameters.getVMax();
 
                 // Logistic transformation
-                newVelocityD = sig(newVelocityD);
+                newVelocityD = 1.0 / (1.0 + exp(-newVelocityD));
 
                 // Calculate new position
                 // TODO: Updated formular from Qi
@@ -160,7 +153,7 @@ namespace mknap_pso
             i.setPosition(newPosition);
 
             int pBestTmp = calculateProfit(i.getPosition());
-            pBestTmp -= calculatePenalty(i.getPosition(), pBestTmp); // TODO: Problem here
+            pBestTmp -= calculatePenalty(i.getPosition(), pBestTmp);
 
             // Update pBest and gBest position/solution
             if (pBestTmp > i.getBestValue()) {
@@ -180,7 +173,7 @@ namespace mknap_pso
         int sum = 0;
 
         for (unsigned int i = 0; i < solution.size(); ++i)
-            sum += (static_cast<int>(solution.at(i)) *currentProblem->profit.at(i));
+            sum += (static_cast<int>(solution.at(i)) * currentProblem->profit.at(i));
 
         return sum;
     }
@@ -199,24 +192,18 @@ namespace mknap_pso
                 // Constraint violated
 
                 // Get total of all weights (TW)
-                int diff = std::min(currentProblem->capacity.at(i), getTotalOfAllWeights(i));
+                int diff = std::min(currentProblem->capacity.at(i),
+                                    abs(getTotalOfAllWeights(i) - currentProblem->capacity.at(i)));
+
+                // Penalty function
+                int penalty = (int) (pBestTmp * (/*log*/((double) dist) / (double) diff));
 
                 // Sum up with penalty function
-                penaltyValue += (int) (pBestTmp * ((double) dist / (double) diff)); // Penalty function
+                penaltyValue += penalty;
             }
         }
 
         return penaltyValue;
-    }
-
-    int Solver::getConstraintValue(Solution &position, int index_m)
-    {
-        int sum = 0;
-
-        for (int i = 0; i < currentProblem->n; ++i)
-            sum += static_cast<int>(position.at(i)) * currentProblem->constraint.at(index_m).at(i);
-
-        return sum;
     }
 
     int Solver::checkConstraint(Solution &position, int index_m)
@@ -227,6 +214,16 @@ namespace mknap_pso
         if (constraintValue > capacity)
             return constraintValue - capacity;
         return 0;
+    }
+
+    int Solver::getConstraintValue(Solution &position, int index_m)
+    {
+        int sum = 0;
+
+        for (int i = 0; i < currentProblem->n; ++i)
+            sum += static_cast<int>(position.at(i)) * currentProblem->constraint.at(index_m).at(i);
+
+        return sum;
     }
 
     int Solver::getTotalOfAllWeights(int index_m)
@@ -277,6 +274,11 @@ namespace mknap_pso
         double randomVariable = (double) std::rand() / RAND_MAX;
 
         return lowerBound + randomVariable * (upperBound - lowerBound);
+    }
+
+    Swarm &Solver::getSwarmReference()
+    {
+        return swarm;
     }
 
 }

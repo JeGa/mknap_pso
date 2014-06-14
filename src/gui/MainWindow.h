@@ -26,12 +26,22 @@ namespace mknap_pso
 
             minotaur::MouseMonitorPlot *plot;
 
+            void printSwarmToConsole(Swarm &swarm);
+            void printSwarmToTable(Swarm &swarm);
+            QString getPositionString(Solution &position);
+            QString getVelocityString(Velocity &velocity);
+            void initSwarmtable();
+
         private slots:
             void solveBtnClicked();
             void openFile();
             void about();
             void tableItemClicked(QTableWidgetItem *item);
             void openSettingsDialog();
+
+            void toolbarStart();
+            void toolbarStop();
+            void toolbarNext();
 
         public:
             MainWindow(QWidget *parent = 0);

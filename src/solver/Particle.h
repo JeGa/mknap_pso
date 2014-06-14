@@ -32,8 +32,8 @@ namespace mknap_pso
 
             Solution &getPosition();
             Velocity &getVelocity();
-            Solution &getBestPosition();
             int getBestValue();
+            Solution &getBestPosition();
 
             void setPosition(Solution position);
             void setVelocity(Velocity velocity);

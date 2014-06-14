@@ -18,9 +18,11 @@ namespace mknap_pso
             Parameters parameters;
 
         private slots:
-            void applyClicked();
+            void buttonBoxClicked(QAbstractButton *button);
             void okayClicked();
             void cancelClicked();
+            void saveParameters();
+            void displayParameters();
 
         public:
             SettingsDialog(QWidget *parent = 0);

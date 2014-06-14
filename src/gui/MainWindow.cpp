@@ -5,6 +5,9 @@
 #include <QTableWidgetItem>
 #include <QTableWidget>
 
+#include <stdexcept>
+#include <iostream>
+
 namespace mknap_pso
 {
 
@@ -18,6 +21,9 @@ namespace mknap_pso
         connect(solveBtn, SIGNAL(clicked()), this, SLOT(solveBtnClicked()));
         connect(table, SIGNAL(itemClicked(QTableWidgetItem *)), this, SLOT(tableItemClicked(QTableWidgetItem *)));
         connect(actionSet_parameter, SIGNAL(triggered()), this, SLOT(openSettingsDialog()));
+        connect(actionStart, SIGNAL(triggered()), this, SLOT(toolbarStart()));
+        connect(actionStop, SIGNAL(triggered()), this, SLOT(toolbarStop()));
+        connect(actionNext_Iteration, SIGNAL(triggered()), this, SLOT(toolbarNext()));
 
         consoleEdit->append("> Choose file with multidimensional (multi-constraint) knapsack problem to solve.");
 
@@ -33,40 +39,66 @@ namespace mknap_pso
         delete plot;
     }
 
-    void MainWindow::solveBtnClicked()
+    void MainWindow::toolbarStart()
     {
-        //for (auto &i : parser.getProblems()) {
-
         plot->clear();
-
         solver.setParameters(settingsDialog->getParameters());
 
         QList<QTableWidgetItem *> items = table->selectedItems();
         if (items.size() >= 1) {
             int row = items.at(0)->row();
 
-            QString outTxt = "> Solving problem " + QString::number(row);
-            consoleEdit->append(outTxt);
-
             solver.startSolveProblem(parser.getProblemsReference().at(row));
 
-            for (int i = 0; i < 400; ++i) {
-                int gBest = solver.solveProblemIteration();
-
-                QString outTxt = "> Iteration: " + QString::number(i+1) + " Value: " + QString::number(gBest);
-                consoleEdit->append(outTxt);
-
-                plot->updatePlot(gBest);
-            }
-
-            solver.stopSolveProblem();
+            consoleEdit->append("==================================");
+            QString outTxt = "> Solving problem " + QString::number(row) + ":";
+            consoleEdit->append(outTxt);
+            printSwarmToConsole(solver.getSwarmReference());
+            printSwarmToTable(solver.getSwarmReference());
+            consoleEdit->append("==================================");
         }
+    }
+
+    void MainWindow::toolbarStop()
+    {
+        int gBest = solver.stopSolveProblem();
+
+        QString outTxt = "> FINAL SOLUTION VALUE: " + QString::number(gBest);
+        consoleEdit->append(outTxt);
+        consoleEdit->append("==================================");
+    }
+
+    void MainWindow::toolbarNext()
+    {
+        consoleEdit->append("----------------------------------");
+
+        int gBest = solver.solveProblemIteration();
+
+        printSwarmToTable(solver.getSwarmReference());
+        printSwarmToConsole(solver.getSwarmReference());
+
+        QString outTxt = "> gBest value: " + QString::number(gBest);
+        consoleEdit->append(outTxt);
+        plot->updatePlot(gBest);
+    }
+
+    void MainWindow::solveBtnClicked()
+    {
+        toolbarStart();
+        for (int i = 0; i < settingsDialog->getParameters().getIterations(); ++i) {
+            QString outTxt = "> Iteration: " + QString::number(i);
+            consoleEdit->append(outTxt);
+            toolbarNext();
+        }
+        toolbarStop();
     }
 
     void MainWindow::openFile()
     {
         QString fileName = QFileDialog::getOpenFileName(this,
                            tr("Open mknap problem file"), "", tr("Problem files (*.txt)"));
+
+        // TODO: Check if allowed
 
         parser.parseFile(fileName.toStdString());
         consoleEdit->append("> Parsed mknap problem file");
@@ -140,6 +172,79 @@ namespace mknap_pso
     {
         QMessageBox::about(this, tr("About mknap_pso"),
                            tr("This application solves the mknap problem with pso."));
+    }
+
+    void MainWindow::printSwarmToConsole(Swarm &swarm)
+    {
+        int counter = 0;
+        for (auto &i : swarm.getParticles()) {
+            QString outTxt = "> Particle " + QString::number(counter) + ":";
+            consoleEdit->append(outTxt);
+
+            consoleEdit->append(getPositionString(i.getPosition()));
+
+            consoleEdit->append("Velocity: ");
+            consoleEdit->append(getVelocityString(i.getVelocity()));
+
+            outTxt = "=> pBest " + QString::number(i.getBestValue());
+            consoleEdit->append(outTxt);
+
+            ++counter;
+        }
+    }
+
+    void MainWindow::initSwarmtable()
+    {
+        swarmTable->clear();
+        swarmTable->setRowCount(0);
+        swarmTable->setColumnCount(0);
+
+        QStringList headerLabels;
+        headerLabels << "Particle" << "pBest" << "pBest position" << "Position" << "Velocity";
+        swarmTable->setColumnCount(5);
+        swarmTable->setHorizontalHeaderLabels(headerLabels);
+        swarmTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
+        //swarmTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    }
+
+    void MainWindow::printSwarmToTable(Swarm &swarm)
+    {
+        initSwarmtable();
+
+        swarmParticlesEdit->setText(QString::number(swarm.getParticles().size()));
+        swarmPBestEdit->setText(QString::number(swarm.getBestValue()));
+
+        QString outText;
+        Solution &position = swarm.getBestPosition();
+        for (auto i : position)
+            outText += QString::number(i);
+        swarmPBestPositionEdit->setText(outText);
+
+        int counter = 0;
+        for (auto &i : swarm.getParticles()) {
+            swarmTable->insertRow(swarmTable->rowCount());
+            swarmTable->setItem(swarmTable->rowCount() - 1, 0, new QTableWidgetItem(QString::number(counter++)));
+            swarmTable->setItem(swarmTable->rowCount() - 1, 1, new QTableWidgetItem(QString::number(i.getBestValue())));
+            swarmTable->setItem(swarmTable->rowCount() - 1, 2, new QTableWidgetItem(getPositionString(i.getBestPosition())));
+            swarmTable->setItem(swarmTable->rowCount() - 1, 3, new QTableWidgetItem(getPositionString(i.getPosition())));
+            swarmTable->setItem(swarmTable->rowCount() - 1, 4, new QTableWidgetItem(getVelocityString(i.getVelocity())));
+        }
+    }
+
+    QString MainWindow::getPositionString(Solution &position)
+    {
+        QString outText;
+        for (auto i : position)
+            outText += QString::number(i);
+        return outText;
+    }
+
+    QString MainWindow::getVelocityString(Velocity &velocity)
+    {
+        QString outText;
+        for (auto i : velocity)
+            outText += QString::number(i) + ",";
+        return outText;
     }
 
 }

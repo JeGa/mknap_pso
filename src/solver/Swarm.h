@@ -13,6 +13,7 @@ namespace mknap_pso
         private:
             int gBest = 0; // Fitness value
             Solution gBestPosition;
+            bool gBestInitialized = false;
 
             std::vector<Particle> particles;
 
@@ -30,6 +31,8 @@ namespace mknap_pso
              */
             int getBestValue();
             Solution &getBestPosition();
+
+            bool isGBestInitialized();
     };
 
 }

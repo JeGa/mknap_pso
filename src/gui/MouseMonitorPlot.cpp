@@ -51,4 +51,9 @@ namespace minotaur
         replot();
     }
 
+    int MouseMonitorPlot::getMaxSize()
+    {
+        return maxSize;
+    }
+
 }

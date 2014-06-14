@@ -8,11 +8,12 @@ namespace mknap_pso
     {
         private:
             int numberOfParticles;
-
-            int constant1;
-            int constant2;
-
             int iterations;
+
+            double inertiaWeight;
+            double constant1;
+            double constant2;
+            double vMax;
 
         public:
             Parameters();
@@ -21,24 +22,34 @@ namespace mknap_pso
             static Parameters getDefaultParameters();
 
             void set(int numberOfParticles,
-                     int constant1,
-                     int constant2,
-                     int iterations);
+                     int iterations,
+                     double inertiaWeight,
+                     double constant1,
+                     double constant2,
+                     double vMax);
 
             int getNumberOfParticles() {
                 return numberOfParticles;
             }
 
-            int getConstant1() {
+            double getConstant1() {
                 return constant1;
             }
 
-            int getConstant2() {
+            double getConstant2() {
                 return constant2;
             }
 
             int getIterations() {
                 return iterations;
+            }
+
+            double getVMax() {
+                return vMax;
+            }
+
+            double getInertiaWeight() {
+                return inertiaWeight;
             }
     };
 

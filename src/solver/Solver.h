@@ -84,7 +84,9 @@ namespace mknap_pso
              */
              void startSolveProblem(std::shared_ptr<KnapsackProblem> problem);
              int solveProblemIteration();
-             void stopSolveProblem();
+             int stopSolveProblem();
+
+             Swarm &getSwarmReference();
     };
 
 }
