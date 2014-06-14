@@ -133,7 +133,8 @@ namespace mknap_pso
                     newVelocityD = parameters.getVMax();
 
                 // Logistic transformation
-                newVelocityD = 1.0 / (1.0 + exp(-newVelocityD));
+                //newVelocityD = 1.0 / (1.0 + exp(-newVelocityD));
+                newVelocityD = newVelocityD / (1.0 + abs(newVelocityD));
 
                 // Calculate new position
                 // TODO: Updated formular from Qi
@@ -196,7 +197,7 @@ namespace mknap_pso
                                     abs(getTotalOfAllWeights(i) - currentProblem->capacity.at(i)));
 
                 // Penalty function
-                int penalty = (int) (pBestTmp * (/*log*/((double) dist) / (double) diff));
+                int penalty = (int) (pBestTmp * (((double) dist) / (double) diff));
 
                 // Sum up with penalty function
                 penaltyValue += penalty;

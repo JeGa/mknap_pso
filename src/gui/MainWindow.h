@@ -25,6 +25,7 @@ namespace mknap_pso
             SettingsDialog *settingsDialog;
 
             minotaur::MouseMonitorPlot *plot;
+            minotaur::MouseMonitorPlot *swarmPlot;
 
             void printSwarmToConsole(Swarm &swarm);
             void printSwarmToTable(Swarm &swarm);

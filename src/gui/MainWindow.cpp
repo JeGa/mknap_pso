@@ -31,6 +31,11 @@ namespace mknap_pso
         plot = new minotaur::MouseMonitorPlot();
         plot->init(Qt::blue, "Global best fitness value", "Iteration", "Fitness value");
         graphLayout->layout()->addWidget(plot);
+
+        swarmPlot = new minotaur::MouseMonitorPlot();
+        swarmPlot->init(Qt::blue, "Particle best fitness value", "Particle", "Fitness value");
+        swarmTab->layout()->addWidget(swarmPlot);
+        swarmPlot->setDotStyle();
     }
 
     MainWindow::~MainWindow()
@@ -42,6 +47,7 @@ namespace mknap_pso
     void MainWindow::toolbarStart()
     {
         plot->clear();
+        swarmPlot->clear();
         solver.setParameters(settingsDialog->getParameters());
 
         QList<QTableWidgetItem *> items = table->selectedItems();
@@ -80,6 +86,10 @@ namespace mknap_pso
         QString outTxt = "> gBest value: " + QString::number(gBest);
         consoleEdit->append(outTxt);
         plot->updatePlot(gBest);
+
+        for (auto &i : solver.getSwarmReference().getParticles()) {
+            swarmPlot->updatePlot(i.getBestValue());
+        }
     }
 
     void MainWindow::solveBtnClicked()

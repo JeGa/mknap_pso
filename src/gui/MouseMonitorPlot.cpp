@@ -16,14 +16,11 @@ namespace minotaur
         yStep = DEFAULT_Y_STEP;
         maxSize = DEFAULT_MAX_SIZE;
 
-        //curve.setCurveAttribute(QwtPlotCurve::Fitted);
-
         curve.setPen(color);
         curve.setSamples(xData, yData);
         curve.attach(this);
 
         setTitle(QString(title.c_str()));
-        setAxisScale(QwtPlot::xBottom, 0, maxSize, xStep);
         setAxisTitle(QwtPlot::xBottom, QString(xAxisTitle.c_str()));
         setAxisTitle(QwtPlot::yLeft, QString(yAxisTitle.c_str()));
     }
@@ -34,11 +31,6 @@ namespace minotaur
         yData.append(data);
 
         curve.setSamples(xData, yData);
-
-        if (xData.size() == maxSize) {
-            xData.clear();
-            yData.clear();
-        }
 
         replot();
     }
@@ -51,9 +43,19 @@ namespace minotaur
         replot();
     }
 
-    int MouseMonitorPlot::getMaxSize()
+    void MouseMonitorPlot::setDotStyle()
     {
-        return maxSize;
+        curve.setStyle(QwtPlotCurve::CurveStyle::Dots);
+        curve.setPen(Qt::blue, 3.0);
+    }
+
+    void MouseMonitorPlot::toggleColor()
+    {
+        static int color = 0;
+        curve.setPen((Qt::GlobalColor)color++, 3.0);
+
+        if (color == 20)
+            color = 0;
     }
 
 }

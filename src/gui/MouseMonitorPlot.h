@@ -41,7 +41,8 @@ namespace minotaur
                       std::string yAxisTitle);
             void updatePlot(double data);
             void clear();
-            int getMaxSize();
+            void setDotStyle();
+            void toggleColor();
     };
 
 }
