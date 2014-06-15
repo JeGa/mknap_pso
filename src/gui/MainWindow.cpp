@@ -36,6 +36,8 @@ namespace mknap_pso
         swarmPlot->init(Qt::blue, "Particle best fitness value", "Particle", "Fitness value");
         swarmTab->layout()->addWidget(swarmPlot);
         swarmPlot->setDotStyle();
+
+        future = QtConcurrent::run(this, &MainWindow::runFunction);
     }
 
     MainWindow::~MainWindow()
@@ -44,10 +46,16 @@ namespace mknap_pso
         delete plot;
     }
 
+    int MainWindow::runFunction()
+    {
+        return solver.solveProblemIteration();
+    }
+
     void MainWindow::toolbarStart()
     {
         plot->clear();
         swarmPlot->clear();
+        consoleEdit->clear();
         solver.setParameters(settingsDialog->getParameters());
 
         QList<QTableWidgetItem *> items = table->selectedItems();
@@ -60,25 +68,34 @@ namespace mknap_pso
             QString outTxt = "> Solving problem " + QString::number(row) + ":";
             consoleEdit->append(outTxt);
             printSwarmToConsole(solver.getSwarmReference());
-            printSwarmToTable(solver.getSwarmReference());
             consoleEdit->append("==================================");
+
+            printSwarmToTable(solver.getSwarmReference());
         }
     }
 
-    void MainWindow::toolbarStop()
+    int MainWindow::toolbarStop()
     {
+        if (!solver.isSolving())
+            return -1;
+
         int gBest = solver.stopSolveProblem();
 
         QString outTxt = "> FINAL SOLUTION VALUE: " + QString::number(gBest);
         consoleEdit->append(outTxt);
         consoleEdit->append("==================================");
+
+        return gBest;
     }
 
     void MainWindow::toolbarNext()
     {
+        if (!solver.isSolving())
+            return;
+
         consoleEdit->append("----------------------------------");
 
-        int gBest = solver.solveProblemIteration();
+        int gBest = runFunction();//future.result();
 
         printSwarmToTable(solver.getSwarmReference());
         printSwarmToConsole(solver.getSwarmReference());
@@ -87,20 +104,21 @@ namespace mknap_pso
         consoleEdit->append(outTxt);
         plot->updatePlot(gBest);
 
-        for (auto &i : solver.getSwarmReference().getParticles()) {
+        for (auto &i : solver.getSwarmReference().getParticles())
             swarmPlot->updatePlot(i.getBestValue());
-        }
     }
 
     void MainWindow::solveBtnClicked()
     {
+        //for (int j = 0; j < 10; ++j) {
         toolbarStart();
         for (int i = 0; i < settingsDialog->getParameters().getIterations(); ++i) {
             QString outTxt = "> Iteration: " + QString::number(i);
             consoleEdit->append(outTxt);
             toolbarNext();
         }
-        toolbarStop();
+        std::cout << toolbarStop() << " " << std::endl;
+        //}
     }
 
     void MainWindow::openFile()
@@ -108,7 +126,8 @@ namespace mknap_pso
         QString fileName = QFileDialog::getOpenFileName(this,
                            tr("Open mknap problem file"), "", tr("Problem files (*.txt)"));
 
-        // TODO: Check if allowed
+        if (fileName == "")
+            return;
 
         parser.parseFile(fileName.toStdString());
         consoleEdit->append("> Parsed mknap problem file");

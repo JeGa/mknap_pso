@@ -16,6 +16,7 @@ namespace mknap_pso
     {
         private:
             std::shared_ptr<KnapsackProblem> currentProblem = 0;
+            bool solving = false;
 
             Parameters parameters;
 
@@ -70,6 +71,12 @@ namespace mknap_pso
 
             void findSolution();
 
+            int updateStrategy_novelBased(int currentPositionD, double newVelocityD);
+
+            int updateStrategy_standard(int currentPositionD, double newVelocityD);
+
+            int updateStrategy_standardUpdated(int currentPositionD, double newVelocityD);
+
         public:
             Solver();
             ~Solver();
@@ -82,11 +89,12 @@ namespace mknap_pso
              * The following functions are for manual usage.
              * (Do the steps manually from outside).
              */
-             void startSolveProblem(std::shared_ptr<KnapsackProblem> problem);
-             int solveProblemIteration();
-             int stopSolveProblem();
+            void startSolveProblem(std::shared_ptr<KnapsackProblem> problem);
+            int solveProblemIteration();
+            int stopSolveProblem();
 
-             Swarm &getSwarmReference();
+            Swarm &getSwarmReference();
+            bool isSolving();
     };
 
 }

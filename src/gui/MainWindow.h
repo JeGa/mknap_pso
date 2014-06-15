@@ -8,6 +8,7 @@
 
 #include <QMainWindow>
 #include <QWidget>
+#include <QtConcurrent/QtConcurrent>
 
 #include "ui_mainwindow.h"
 
@@ -27,11 +28,14 @@ namespace mknap_pso
             minotaur::MouseMonitorPlot *plot;
             minotaur::MouseMonitorPlot *swarmPlot;
 
+            QFuture<int> future;
+
             void printSwarmToConsole(Swarm &swarm);
             void printSwarmToTable(Swarm &swarm);
             QString getPositionString(Solution &position);
             QString getVelocityString(Velocity &velocity);
             void initSwarmtable();
+            int runFunction();
 
         private slots:
             void solveBtnClicked();
@@ -41,7 +45,7 @@ namespace mknap_pso
             void openSettingsDialog();
 
             void toolbarStart();
-            void toolbarStop();
+            int toolbarStop();
             void toolbarNext();
 
         public:
