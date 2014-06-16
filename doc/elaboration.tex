@@ -5,6 +5,8 @@
 \usepackage{listings}
 \usepackage{xcolor}
 \usepackage{textcomp}
+\usepackage{graphicx}
+\usepackage{float}
 
 \lstdefinestyle{customc++}{
   belowcaptionskip=1\baselineskip,
@@ -20,7 +22,7 @@
   stringstyle=\color{orange},
 }
 
-\lstset{escapechar=@,style=customc++}
+\lstset{escapechar=@,style=customc++,captionpos=b}
 
 \begin{document}
 
@@ -55,7 +57,7 @@ Particle Swarm Optimization is a swarm algorithm based on the flocking behaviour
 
 \begin{math}
 \label{formula-1}
-v_i = \omega * v_i + c_1 * rand_1 * (x_pbest - x_i) + c_2 * rand_2 * (x_gbest - x_i) \\
+v_i = \omega * v_i + c_1 * rand_1 * (x_{pbest} - x_i) + c_2 * rand_2 * (x_{gbest} - x_i) \\
 \end{math}
 
 \begin{math}
@@ -73,50 +75,71 @@ To use PSO for discrete binary problems, some changes need to be made. Unlike in
 S(v_i) = 1.0 / (1.0 + e^{(-v_i)});
 \end{math}
 
-The output of formula is a velocity limited with the sigmoid function to $[0.0, 1.0]$. To calculate the new position, the following formula is used.
+The output of formula is a velocity limited with the sigmoid function to $[0.0, 1.0]$. To calculate the new position, an update strategy is needed. The used update strategy is the original strategy from Kennedy and Eberhart \cite{bib-discrete}.
 
 \begin{math}
-todo
+if (rand() < S(v_i))\\
+	x_i = 1\\
+else\\
+	x_i = 0
 \end{math}
 
 \section{Multidimensional knapsack problem}
 \label{lbl-mknap}
-Because the multidimensional (multi-constraint) knapsack problem is already described in detail in a lot of papers, it is only briefly described here. To sum up, a number of elements need to be packed into a knapsack. Each element has a profit value, and several constraint values. The aim is, to maximize the profit (fitness value) while not violating any constraint. A solution is described as a binary vector with the dimension as the number of elements to pack. 1 means the element is in the knapsack, 0 means it is not in the knapsack. An important addition to the traditional discrete PSO are the constraint values. Special care has to be taken to identify invalid solutions.
+Because the multidimensional (multi-constraint) knapsack problem is already described in detail in a lot of papers, it is only briefly described here. To sum up, a number of elements need to be packed into a knapsack. Each element has a profit value, and several constraint values. The aim is, to maximize the profit (fitness value) while not violating any constraint. A solution is described as a binary vector with the dimension as the number of elements to pack. 1 means the element is in the knapsack, 0 means it is not in the knapsack. An important addition to the traditional discrete PSO are the constraint values. Special care has to be taken to identify invalid solutions.\\
+
+A particle consists of the following information (\ref{fig-particle}):
+\begin{itemize}
+\item Binary solution vector (the current position)
+\item Real velocity vector
+\item pBest value and position
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=400px]{images/particle.PNG}
+    \caption{Particle}
+    \label{fig-particle}
+\end{figure}
 
 \section{Implementation}
 \label{lbl-impl}
-This chapter describes the implementation in detail and shows sum extracts from the source code.
+This chapter describes the implementation in detail and shows some extracts from the source code.
 
 \subsection{Algorithm}
-At first, the particles are initialized with random positions and random velocities. After that, the profit is of the particular solution is calculated and saved as gBest value. The highest profit is saved as the swarms gBest value.
+At first, the particles are initialized with random positions and random velocities. After that, the profit of the particular solution is calculated and saved as gBest value. The highest profit of all particles is saved as the swarms gBest value.
 
 \begin{lstlisting}[caption="Solver.cpp"]
 for (auto &i : swarm.getParticles()) {
-            Solution position = getRandomSolution();
-            Velocity velocity = getRandomVelocity();
+	Solution position = getRandomSolution();
+   	Velocity velocity = getRandomVelocity();
 
-            i.setPosition(position);
-            i.setVelocity(velocity);
-
-            // Fitness value / Profit of the solution/position.
-            int profit = calculateProfit(position);
-            
-            // ... Set gBest and pBest
+	i.setPosition(position);
+	i.setVelocity(velocity);
+	
+	// Fitness value / Profit of the solution/position.
+	int profit = calculateProfit(position);
+	
+	// ... Set gBest and pBest
 }
 \end{lstlisting}
 
 After initialization, the method \lstinline$findSolution()$ is called, to iterate through all particles of the swarm. For each dimension of the particles the formula \ref{formula-1} and \ref{formula-2} are applied.
 
 \begin{lstlisting}[caption="Solver.cpp"]
-double newVelocityD = parameters.getInertiaWeight() * currentVelocityD +
-                      parameters.getConstant1() * randomParticleNumber * (pBestD - currentPositionD) +
-                      parameters.getConstant2() * randomGlobalNumber * (gBestD - currentPositionD);
+double newVelocityD = parameters.getInertiaWeight() *
+	currentVelocityD +
+	parameters.getConstant1() * randomParticleNumber *
+	(pBestD - currentPositionD) +
+	parameters.getConstant2() * randomGlobalNumber *
+	(gBestD - currentPositionD);
 
 if (newVelocityD > parameters.getVMax())
 	newVelocityD = parameters.getVMax();
 
 /* K. and E. */
-int newPositionD = updateStrategy_standard(currentPositionD, newVelocityD);
+int newPositionD = updateStrategy_standard(
+	currentPositionD, newVelocityD);
 \end{lstlisting}
 
 At last, the profit and the penalty values are calculated. With this information the pBest and gBest values can be updated.
@@ -127,17 +150,21 @@ pBestTmp -= calculatePenalty(i.getPosition(), pBestTmp);
 
 // Update pBest and gBest position/solution
 if (pBestTmp > i.getBestValue()) {
-    i.setBestPositionAndValue(i.getPosition(), pBestTmp);
-	if (pBestTmp > swarm.getBestValue())
-	    swarm.setBestPositionAndValue(i.getPosition(), pBestTmp);
+	i.setBestPositionAndValue(i.getPosition(), pBestTmp);
+	if (pBestTmp > swarm.getBestValue()) {
+	    swarm.setBestPositionAndValue(
+	    	i.getPosition(), pBestTmp);
+	}
 }
 \end{lstlisting}
 
 \subsection{Update strategies}
-There are several strategies available, to update the particles position based on the velocity. The current used startegie in the implementation is the original strategie from Kennedy and Eberhart. A novel based update strategy and the improved update strategie from Qi Shen are also implemented.
+There are several strategies available, to update the particles position based on the velocity. The current used startegie in the implementation is the original strategie from Kennedy and Eberhart \cite{bib-discrete}. A novel based update strategy \cite{bib-novel} and the improved update strategie from Qi Shen are also implemented.
+
+\subsection{Penalty function}
+A very important part of the algorithm is the penalty function. Because the knapsack problem has multiple constraints, invalid positions can occur. The penalty function therefore adjusts the fitness value to a valid fitness value (based on several different parameters). There are a many penalty functions to choose from. It is important, to choose a good penalty function, because it does strongly influence the optimization capabilities of PSO. If the penalty function is too weak, invalid positions are more likely and the algorithm does not perform well. If it is too large, ..
 
 \subsection{Parameter}
-
 The available parameters are explained in the following table.\\
 
 \begin{tabular}{|l|l|}
@@ -152,13 +179,22 @@ The best found configuration is displayed in image TODO.
 
 \section{Tests}
 \label{lbl-tests}
+For the tests, the \lstinline$mknapcb1.txt$ problems from the OR library were used.
 
 \section{Application}
 \label{lbl-app}
+The application is able to parse files from the OR library with the same format as $mknapcb1.txt$. The GUI   provides tables to view the problems and its values. The user is able to set different parameters via the File-settings dialog. He can choose between automatic or manual (step by step) iteration. Note that the GUI is made only for testing purpose, so there are still some improvements to do. The algorithm is done in the GUI thread, so the GUI blocks (algorithm needs a worker thread).
 
-\section{Improvements}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=400px]{images/image_main.PNG}
+    \caption{Application}
+    \label{fig-app}
+\end{figure}
+
+\section{Critique and improvements}
 \label{lbl-impr}
-Local pBest.
+The discrete PSO does converge towards the optimum, however it does not work optimal. The global best position differs dependent of the problem in average of about 5\% from the optimal value. One problem is the penalty function. The penalty function could be optimized. Another optimization is to use a local best position instead of the swarms best position for the calculation of the velocity. In this case, only the $n$ nearest neighbour particles are used to calculate the lBest value.
 
 \newpage
 
@@ -174,11 +210,11 @@ Local pBest.
 	  	JOURNAL OF SOFTWARE, VOL. 3, NO. 9, DECEMBER 2008
 	\bibitem{bib-penalty}
 		Anne L. Oken.
-		\emph{PENALTY FUNCTIONS AND THE KNAPSACK PROBLEM}.
+		\emph{Penalty functions and the knapsack problem}.
 		Evolutionary Computation, 1994. IEEE World Congress on Computational Intelligence., Proceedings of the First IEEE Conference on.
 	\bibitem{bib-discrete}
 		James Kennedy, Russell C. Eberhart.
-		\emph{A DISCRETE BINARY VERSION OF THE PARTICLE SWARM ALGORITHM}.
+		\emph{A discrete binary version of the particle swarm algorithm}.
 		Systems, Man, and Cybernetics, 1997. Computational Cybernetics and Simulation., 1997 IEEE International Conference on.
 \end{thebibliography}
 

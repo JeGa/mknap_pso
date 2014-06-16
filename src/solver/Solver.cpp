@@ -107,9 +107,6 @@ namespace mknap_pso
     void Solver::findSolution()
     {
         for (auto &i : swarm.getParticles()) {
-            int randomParticleNumber = getRandomIntegerValue(0, 1);
-            int randomGlobalNumber = getRandomIntegerValue(0, 1);
-
             Velocity newVelocity;
             Solution newPosition;
 
@@ -125,6 +122,9 @@ namespace mknap_pso
 
                 int pBestD = i.getBestPosition().at(j);
                 int gBestD = swarm.getBestPosition().at(j);
+
+                int randomParticleNumber = getRandomIntegerValue(0, 1);
+                int randomGlobalNumber = getRandomIntegerValue(0, 1);
 
                 double newVelocityD = parameters.getInertiaWeight() * currentVelocityD +
                                       parameters.getConstant1() * randomParticleNumber * (pBestD - currentPositionD) +
@@ -206,7 +206,7 @@ namespace mknap_pso
 
         int newPositionD;
 
-        double alpha = 0.5;
+        double alpha = 0.5;//getRandomDoubleValue(0.0, 1.0);
         if (newVelocityD <= alpha)
             newPositionD = currentPositionD;
         else if (newVelocityD <= (1 + alpha) / 2)
