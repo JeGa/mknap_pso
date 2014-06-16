@@ -2,6 +2,8 @@
 
 This application solves the multidimensional Knapsack Problem from OR Library with the discrete version of particle swarm optimization.
 
+![](doc/images/image_main.PNG)
+
 For further information: [documentation](doc/elaboration.tex)
 
 Problem files:  
