@@ -7,6 +7,7 @@
 
 #include <stdexcept>
 #include <iostream>
+#include <ctime>
 
 namespace mknap_pso
 {
@@ -33,7 +34,7 @@ namespace mknap_pso
         graphLayout->layout()->addWidget(plot);
 
         swarmPlot = new minotaur::MouseMonitorPlot();
-        swarmPlot->init(Qt::blue, "Particle best fitness value", "Particle", "Fitness value");
+        swarmPlot->init(Qt::blue, "Particle best fitness value", "Iteration", "Fitness value");
         swarmTab->layout()->addWidget(swarmPlot);
         swarmPlot->setDotStyle();
 
@@ -54,9 +55,16 @@ namespace mknap_pso
     void MainWindow::toolbarStart()
     {
         plot->clear();
-        swarmPlot->clear();
         consoleEdit->clear();
         solver.setParameters(settingsDialog->getParameters());
+
+        swarmPlot->clearCurves();
+        std::srand(std::time(0));
+        for (int i = 0; i < settingsDialog->getParameters().getNumberOfParticles(); ++i) {
+            swarmPlot->addCurve(QColor((std::rand() % (255 + 1)),
+                                       (std::rand() % (255 + 1)),
+                                       (std::rand() % (255 + 1))));
+        }
 
         QList<QTableWidgetItem *> items = table->selectedItems();
         if (items.size() >= 1) {
@@ -102,10 +110,15 @@ namespace mknap_pso
 
         QString outTxt = "> gBest value: " + QString::number(gBest);
         consoleEdit->append(outTxt);
-        plot->updatePlot(gBest);
 
+        QVector<double> data;
+        data.append(gBest);
+        plot->updatePlot(data);
+
+        QVector<double> dataSwarm;
         for (auto &i : solver.getSwarmReference().getParticles())
-            swarmPlot->updatePlot(i.getBestValue());
+            dataSwarm.append(i.getBestValue());
+        swarmPlot->updatePlot(dataSwarm);
     }
 
     void MainWindow::solveBtnClicked()

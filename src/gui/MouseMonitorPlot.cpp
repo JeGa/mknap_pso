@@ -1,8 +1,6 @@
 #include "MouseMonitorPlot.h"
 
-#define DEFAULT_X_STEP 20
-#define DEFAULT_Y_STEP 1000
-#define DEFAULT_MAX_SIZE 400
+#define DEFAULT_MAX_SIZE 500
 
 namespace minotaur
 {
@@ -12,50 +10,67 @@ namespace minotaur
                                 std::string xAxisTitle,
                                 std::string yAxisTitle)
     {
-        xStep = DEFAULT_X_STEP;
-        yStep = DEFAULT_Y_STEP;
         maxSize = DEFAULT_MAX_SIZE;
+        xStep = maxSize * 0.1;
 
-        curve.setPen(color);
-        curve.setSamples(xData, yData);
-        curve.attach(this);
+        auto cContainer = std::make_shared<CurveContainer>(color);
+        cContainer->curve.setSamples(xData, cContainer->yData);
+        cContainer->curve.attach(this);
+
+        curves.append(cContainer);
 
         setTitle(QString(title.c_str()));
         setAxisTitle(QwtPlot::xBottom, QString(xAxisTitle.c_str()));
         setAxisTitle(QwtPlot::yLeft, QString(yAxisTitle.c_str()));
     }
 
-    void MouseMonitorPlot::updatePlot(double data)
+    void MouseMonitorPlot::updatePlot(QVector<double> data)
     {
-        xData.append(xData.size());
-        yData.append(data);
+        if (data.size() != curves.size())
+            return;
 
-        curve.setSamples(xData, yData);
+        for (int i = 0; i < data.size(); ++i) {
+            curves[i]->update(data.at(i));
+            curves[i]->curve.setSamples(xData, curves[i]->yData);
+        }
+
+        xData.append(xData.size());
 
         replot();
     }
 
     void MouseMonitorPlot::clear()
     {
+        for (auto i : curves)
+            i->yData.clear();
         xData.clear();
-        yData.clear();
+
+        replot();
+    }
+
+    void MouseMonitorPlot::clearCurves()
+    {
+        curves.clear();
+        xData.clear();
 
         replot();
     }
 
     void MouseMonitorPlot::setDotStyle()
     {
-        curve.setStyle(QwtPlotCurve::CurveStyle::Dots);
-        curve.setPen(Qt::blue, 3.0);
+        for (int i = 0; i < curves.size(); ++i) {
+            curves[i]->curve.setStyle(QwtPlotCurve::CurveStyle::Dots);
+            curves[i]->curve.setPen(curves[i]->curve.pen().color(), 3.0);
+        }
     }
 
-    void MouseMonitorPlot::toggleColor()
+    void MouseMonitorPlot::addCurve(QColor color)
     {
-        static int color = 0;
-        curve.setPen((Qt::GlobalColor)color++, 3.0);
+        auto cContainer = std::make_shared<CurveContainer>(color);
+        cContainer->curve.setSamples(xData, cContainer->yData);
+        cContainer->curve.attach(this);
 
-        if (color == 20)
-            color = 0;
+        curves.append(cContainer);
     }
 
 }

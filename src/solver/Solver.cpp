@@ -162,6 +162,9 @@ namespace mknap_pso
         }
     }
 
+    /**
+     * For testing only.
+     */
     int Solver::updateStrategy_novelBased(int currentPositionD, double newVelocityD)
     {
         double Rmax = 1000.0;
@@ -198,6 +201,9 @@ namespace mknap_pso
         return newPositionD;
     }
 
+    /**
+     * For testing only.
+     */
     int Solver::updateStrategy_standardUpdated(int currentPositionD, double newVelocityD)
     {
         // Logistic transformation
