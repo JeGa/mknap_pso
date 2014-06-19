@@ -5,6 +5,7 @@
 #include "Swarm.h"
 #include "Particle.h"
 #include "Parameters.h"
+#include "UpdateStrategy.h"
 
 #include <vector>
 #include <memory>
@@ -21,6 +22,8 @@ namespace mknap_pso
             Parameters parameters;
 
             Swarm swarm;
+
+            std::shared_ptr<UpdateStrategy> updateStrategy;
 
             /**
              * sum{j=1,...,n} p(j)x(j)
@@ -70,12 +73,6 @@ namespace mknap_pso
             void initializeParticles();
 
             void findSolution();
-
-            int updateStrategy_novelBased(int currentPositionD, double newVelocityD);
-
-            int updateStrategy_standard(int currentPositionD, double newVelocityD);
-
-            int updateStrategy_standardUpdated(int currentPositionD, double newVelocityD);
 
         public:
             Solver();

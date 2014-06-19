@@ -13,6 +13,8 @@ namespace mknap_pso
     Solver::Solver()
     {
         parameters = Parameters::getDefaultParameters();
+        updateStrategy = std::make_shared<UpdateStrategyStandard>();
+
         std::srand(std::time(0));
     }
 
@@ -132,15 +134,10 @@ namespace mknap_pso
 
                 if (newVelocityD > parameters.getVMax())
                     newVelocityD = parameters.getVMax();
+                else if (newVelocityD < -parameters.getVMax())
+                    newVelocityD = -parameters.getVMax();
 
-                /* Novel based */
-                //int newPositionD = updateStrategy_novelBased(currentPositionD, newVelocityD);
-
-                /* K. and E. */
-                int newPositionD = updateStrategy_standard(currentPositionD, newVelocityD);
-
-                /* Updated formula from Qi Shen */
-                //int newPositionD = updateStrategy_standardUpdated(currentPositionD, newVelocityD);
+                int newPositionD = updateStrategy->updatePosition(currentPositionD, newVelocityD);
 
                 newVelocity.push_back(newVelocityD);
                 newPosition.push_back(newPositionD);
@@ -160,67 +157,6 @@ namespace mknap_pso
                     swarm.setBestPositionAndValue(i.getPosition(), pBestTmp);
             }
         }
-    }
-
-    /**
-     * For testing only.
-     */
-    int Solver::updateStrategy_novelBased(int currentPositionD, double newVelocityD)
-    {
-        double Rmax = 1000.0;
-        double Rmin = -1000.0;
-
-        double newPositionD_tmp = currentPositionD + newVelocityD;
-        newPositionD_tmp = (newPositionD_tmp - Rmin) / (Rmax - Rmin); // L(x)
-
-        int newPositionD;
-        double randomValue = getRandomDoubleValue(0.0, 1.0);
-        if (randomValue <= newPositionD_tmp)
-            newPositionD = 1;
-        else
-            newPositionD = 0;
-
-        return newPositionD;
-    }
-
-    int Solver::updateStrategy_standard(int currentPositionD, double newVelocityD)
-    {
-        // Logistic transformation
-        newVelocityD = 1.0 / (1.0 + exp(-newVelocityD));
-        //newVelocityD = newVelocityD / (1.0 + abs(newVelocityD));
-
-        // Calculate new position
-        double randomValue = getRandomDoubleValue(0.0, 1.0);
-
-        int newPositionD;
-        if (randomValue < newVelocityD)
-            newPositionD = 1;
-        else
-            newPositionD = 0;
-
-        return newPositionD;
-    }
-
-    /**
-     * For testing only.
-     */
-    int Solver::updateStrategy_standardUpdated(int currentPositionD, double newVelocityD)
-    {
-        // Logistic transformation
-        newVelocityD = 1.0 / (1.0 + exp(-newVelocityD));
-        //newVelocityD = newVelocityD / (1.0 + abs(newVelocityD));
-
-        int newPositionD;
-
-        double alpha = 0.5;//getRandomDoubleValue(0.0, 1.0);
-        if (newVelocityD <= alpha)
-            newPositionD = currentPositionD;
-        else if (newVelocityD <= (1 + alpha) / 2)
-            newPositionD = 1;
-        else
-            newPositionD = 0;
-
-        return newPositionD;
     }
 
     int Solver::calculateProfit(Solution &solution)

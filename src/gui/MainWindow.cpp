@@ -246,7 +246,6 @@ namespace mknap_pso
         swarmTable->setColumnCount(5);
         swarmTable->setHorizontalHeaderLabels(headerLabels);
         swarmTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
-        //swarmTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     }
 
     void MainWindow::printSwarmToTable(Swarm &swarm)

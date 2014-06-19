@@ -31,6 +31,8 @@
       <File Name="src/solver/Particle.cpp"/>
       <File Name="src/solver/Swarm.h"/>
       <File Name="src/solver/Swarm.cpp"/>
+      <File Name="src/solver/UpdateStrategy.h"/>
+      <File Name="src/solver/UpdateStrategy.cpp"/>
     </VirtualDirectory>
     <VirtualDirectory Name="gui">
       <File Name="src/gui/MainWindow.cpp"/>
