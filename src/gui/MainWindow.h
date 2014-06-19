@@ -39,6 +39,7 @@ namespace mknap_pso
 
         private slots:
             void solveBtnClicked();
+            void preDefinedTestClicked();
             void openFile();
             void about();
             void tableItemClicked(QTableWidgetItem *item);

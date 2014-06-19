@@ -25,6 +25,7 @@ namespace mknap_pso
         connect(actionStart, SIGNAL(triggered()), this, SLOT(toolbarStart()));
         connect(actionStop, SIGNAL(triggered()), this, SLOT(toolbarStop()));
         connect(actionNext_Iteration, SIGNAL(triggered()), this, SLOT(toolbarNext()));
+        connect(actionDo_pre_defined_test, SIGNAL(triggered()), this, SLOT(preDefinedTestClicked()));
 
         consoleEdit->append("> Choose file with multidimensional (multi-constraint) knapsack problem to solve.");
 
@@ -123,15 +124,52 @@ namespace mknap_pso
 
     void MainWindow::solveBtnClicked()
     {
-        //for (int j = 0; j < 10; ++j) {
         toolbarStart();
         for (int i = 0; i < settingsDialog->getParameters().getIterations(); ++i) {
             QString outTxt = "> Iteration: " + QString::number(i);
             consoleEdit->append(outTxt);
             toolbarNext();
         }
-        std::cout << toolbarStop() << " " << std::endl;
-        //}
+        toolbarStop();
+    }
+
+    void MainWindow::preDefinedTestClicked()
+    {
+        int gBest;
+        QString outTxt;
+
+        plot->clear();
+        consoleEdit->clear();
+        swarmPlot->clearCurves();
+
+        solver.setParameters(settingsDialog->getParameters());
+
+        // Problem 1
+        solver.startSolveProblem(parser.getProblemsReference().at(0));
+        for (int i = 0; i < settingsDialog->getParameters().getIterations(); ++i)
+            runFunction();
+        gBest = solver.stopSolveProblem();
+
+        outTxt = "Problem 0: " + QString::number(gBest);
+        consoleEdit->append(outTxt);
+
+        // Problem 10
+        solver.startSolveProblem(parser.getProblemsReference().at(0));
+        for (int i = 0; i < settingsDialog->getParameters().getIterations(); ++i)
+            runFunction();
+        gBest = solver.stopSolveProblem();
+
+        outTxt = "Problem 10: " + QString::number(gBest);
+        consoleEdit->append(outTxt);
+
+        // Problem 30
+        solver.startSolveProblem(parser.getProblemsReference().at(0));
+        for (int i = 0; i < settingsDialog->getParameters().getIterations(); ++i)
+            runFunction();
+        gBest = solver.stopSolveProblem();
+
+        outTxt = "Problem 30: " + QString::number(gBest);
+        consoleEdit->append(outTxt);
     }
 
     void MainWindow::openFile()
@@ -213,7 +251,9 @@ namespace mknap_pso
     void MainWindow::about()
     {
         QMessageBox::about(this, tr("About mknap_pso"),
-                           tr("This application solves the mknap problem with pso."));
+                           "This application solves the mknap problem with discrete binary Particle Swarm Optimization.\n\n"
+                           "Author: JeGa\n"
+                           "Github: https://github.com/JeGa/mknap_pso");
     }
 
     void MainWindow::printSwarmToConsole(Swarm &swarm)

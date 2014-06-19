@@ -219,6 +219,7 @@
     </property>
     <addaction name="actionOpen_mknap_file"/>
     <addaction name="actionSet_parameter"/>
+    <addaction name="actionDo_pre_defined_test"/>
     <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
@@ -279,6 +280,11 @@
   <action name="actionNext_Iteration">
    <property name="text">
     <string>Next Iteration</string>
+   </property>
+  </action>
+  <action name="actionDo_pre_defined_test">
+   <property name="text">
+    <string>Do pre-defined test</string>
    </property>
   </action>
  </widget>
