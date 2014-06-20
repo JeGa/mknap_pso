@@ -40,4 +40,15 @@ namespace mknap_pso
         this->vMax = vMax;
     }
 
+    QString Parameters::toString()
+    {
+        QString str;
+
+        str = QString::number(numberOfParticles) + " " + QString::number(iterations) + " " +
+              QString::number(inertiaWeight) + " " + QString::number(constant1) + " " +
+              QString::number(constant2) + " " +   QString::number(vMax);
+
+        return str;
+    }
+
 }

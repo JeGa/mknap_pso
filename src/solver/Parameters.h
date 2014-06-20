@@ -1,6 +1,8 @@
 #ifndef PARAMETERS_H
 #define PARAMETERS_H
 
+#include <QString>
+
 namespace mknap_pso
 {
 
@@ -51,6 +53,8 @@ namespace mknap_pso
             double getInertiaWeight() {
                 return inertiaWeight;
             }
+
+            QString toString();
     };
 
 }

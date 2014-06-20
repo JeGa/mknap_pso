@@ -133,45 +133,6 @@ namespace mknap_pso
         toolbarStop();
     }
 
-    void MainWindow::preDefinedTestClicked()
-    {
-        int gBest;
-        QString outTxt;
-
-        plot->clear();
-        consoleEdit->clear();
-        swarmPlot->clearCurves();
-
-        solver.setParameters(settingsDialog->getParameters());
-
-        // Problem 1
-        solver.startSolveProblem(parser.getProblemsReference().at(0));
-        for (int i = 0; i < settingsDialog->getParameters().getIterations(); ++i)
-            runFunction();
-        gBest = solver.stopSolveProblem();
-
-        outTxt = "Problem 0: " + QString::number(gBest);
-        consoleEdit->append(outTxt);
-
-        // Problem 10
-        solver.startSolveProblem(parser.getProblemsReference().at(0));
-        for (int i = 0; i < settingsDialog->getParameters().getIterations(); ++i)
-            runFunction();
-        gBest = solver.stopSolveProblem();
-
-        outTxt = "Problem 10: " + QString::number(gBest);
-        consoleEdit->append(outTxt);
-
-        // Problem 30
-        solver.startSolveProblem(parser.getProblemsReference().at(0));
-        for (int i = 0; i < settingsDialog->getParameters().getIterations(); ++i)
-            runFunction();
-        gBest = solver.stopSolveProblem();
-
-        outTxt = "Problem 30: " + QString::number(gBest);
-        consoleEdit->append(outTxt);
-    }
-
     void MainWindow::openFile()
     {
         QString fileName = QFileDialog::getOpenFileName(this,
@@ -326,6 +287,82 @@ namespace mknap_pso
         for (auto i : velocity)
             outText += QString::number(i) + ",";
         return outText;
+    }
+
+    //================================================================
+
+    void MainWindow::preDefinedTestClicked()
+    {
+        // Problem 1
+
+        // Change particle number
+        consoleEdit->append(doTest(0, 5, 500, 1.0, 2.0, 2.0, 6.0));
+        consoleEdit->append(doTest(0, 10, 500, 1.0, 2.0, 2.0, 6.0));
+        consoleEdit->append(doTest(0, 15, 500, 1.0, 2.0, 2.0, 6.0));
+        consoleEdit->append(doTest(0, 20, 500, 1.0, 2.0, 2.0, 6.0));
+        consoleEdit->append(doTest(0, 25, 500, 1.0, 2.0, 2.0, 6.0));
+        consoleEdit->append(doTest(0, 30, 500, 1.0, 2.0, 2.0, 6.0));
+
+        // Change inertia
+        consoleEdit->append(doTest(0, 20, 500, 0.1, 2.0, 2.0, 6.0));
+        consoleEdit->append(doTest(0, 20, 500, 0.5, 2.0, 2.0, 6.0));
+        consoleEdit->append(doTest(0, 20, 500, 0.8, 2.0, 2.0, 6.0));
+        consoleEdit->append(doTest(0, 20, 500, 0.9, 2.0, 2.0, 6.0));
+        consoleEdit->append(doTest(0, 20, 500, 1.0, 2.0, 2.0, 6.0));
+        consoleEdit->append(doTest(0, 20, 500, 1.1, 2.0, 2.0, 6.0));
+        consoleEdit->append(doTest(0, 20, 500, 1.2, 2.0, 2.0, 6.0));
+        consoleEdit->append(doTest(0, 20, 500, 1.5, 2.0, 2.0, 6.0));
+
+        // Change c1 / c2
+        consoleEdit->append(doTest(0, 20, 500, 1.0, 0.1, 1.0, 6.0));
+        consoleEdit->append(doTest(0, 20, 500, 1.0, 0.5, 1.0, 6.0));
+        consoleEdit->append(doTest(0, 20, 500, 1.0, 1.0, 1.0, 6.0));
+        consoleEdit->append(doTest(0, 20, 500, 1.0, 2.0, 1.0, 6.0));
+        consoleEdit->append(doTest(0, 20, 500, 1.0, 3.0, 1.0, 6.0));
+        consoleEdit->append(doTest(0, 20, 500, 1.0, 5.0, 1.0, 6.0));
+        consoleEdit->append(doTest(0, 20, 500, 1.0, 10.0, 1.0, 6.0));
+
+        consoleEdit->append(doTest(0, 20, 500, 1.0, 1.0, 0.1, 6.0));
+        consoleEdit->append(doTest(0, 20, 500, 1.0, 1.0, 1.0, 6.0));
+        consoleEdit->append(doTest(0, 20, 500, 1.0, 1.0, 5.0, 6.0));
+
+        // Change vMax
+        consoleEdit->append(doTest(0, 20, 500, 1.0, 2.0, 2.0, 0.1));
+        consoleEdit->append(doTest(0, 20, 500, 1.0, 2.0, 2.0, 0.5));
+        consoleEdit->append(doTest(0, 20, 500, 1.0, 2.0, 2.0, 1.0));
+        consoleEdit->append(doTest(0, 20, 500, 1.0, 2.0, 2.0, 2.0));
+        consoleEdit->append(doTest(0, 20, 500, 1.0, 2.0, 2.0, 3.0));
+        consoleEdit->append(doTest(0, 20, 500, 1.0, 2.0, 2.0, 4.0));
+        consoleEdit->append(doTest(0, 20, 500, 1.0, 2.0, 2.0, 5.0));
+        consoleEdit->append(doTest(0, 20, 500, 1.0, 2.0, 2.0, 10.0));
+        consoleEdit->append(doTest(0, 20, 500, 1.0, 2.0, 2.0, 20.0));
+    }
+
+    QString MainWindow::doTest(int problem, int particles,
+                               int iterations, double inertia,
+                               double c1, double c2, double vMax)
+    {
+        int globalIt = 20;
+        int gBest, best = INT32_MIN, worse = INT32_MAX;
+        QString str;
+
+        Parameters p;
+        p.set(particles, iterations, inertia, c1, c2, vMax);
+        solver.setParameters(p);
+
+        for (int j = 0; j < globalIt; ++j) {
+            solver.startSolveProblem(parser.getProblemsReference().at(problem));
+            for (int i = 0; i < p.getIterations(); ++i)
+                runFunction();
+            gBest = solver.stopSolveProblem();
+
+            if (gBest > best)
+                best = gBest;
+            if (gBest < worse)
+                worse = gBest;
+        }
+        str = globalIt + " Iterations -> " + p.toString() + " " + QString::number(best) + ", " + QString::number(worse);
+        return str;
     }
 
 }

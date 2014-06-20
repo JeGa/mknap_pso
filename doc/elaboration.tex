@@ -76,12 +76,15 @@ S(v_i) = 1.0 / (1.0 + e^{(-v_i)})
 \end{equation}
 
 The output of formula is a velocity limited with the sigmoid function to $[0.0, 1.0]$. To calculate the new position, an update strategy is needed. The used update strategy is the original strategy from Kennedy and Eberhart \cite{bib-discrete}.
-\begin{lstlisting}
-if (rand() < S(v_i))
-	x_i = 1
-else
-	x_i = 0
-\end{lstlisting}
+
+\begin{equation}
+p_i = \left\{ 
+\begin{array}{l l}
+  1 & \quad \text{$rand() < S(v_i)$}\\
+  0 & \quad \text{otherwise}
+\end{array} \right.
+\end{equation}
+
 
 \section{Multidimensional knapsack problem}
 \label{lbl-mknap}
@@ -166,7 +169,7 @@ if (pBestTmp > i.getBestValue()) {
 \end{lstlisting}
 
 \subsection{Update strategies}
-There are several strategies available, to update the particles position based on the velocity. The current used strategy in the implementation is the original strategy from Kennedy and Eberhart \cite{bib-discrete}. A novel based update strategy \cite{bib-novel} and the improved update strategie from Qi Shen are also implemented. The implementation of the standard update strategy is showed in the following code extract.
+There are several strategies available, to update the particles position based on the velocity. The current used strategy in the implementation is the original strategy from Kennedy and Eberhart \cite{bib-discrete}.The improved update strategy from Qi Shen is also implemented. The implementation of the standard update strategy is showed in the following code extract.
 
 \begin{lstlisting}[caption="UpdateStrategy.cpp"]
 double randomValue = getRandomDoubleValue(0.0, 1.0);
@@ -211,6 +214,7 @@ The available parameters are explained in the following table.\\
 	Maximal velocity ($V_{max}$) & \pbox{10cm}{Limits the velocity. A lesser $V_{max}$ value allows more differences in the particles position. However, it does take longer time until they converge. If the $V_{max}$ value is 2, the output velocities of the sigmoid function can only be in the range of [0.12, 0.88]. So if the velocity is very high (e.g. v = 10.0, Sig(v) = 0.88), the possibility that the particles position is 0 (1 - 0.88) is still there. Figure \ref{fig-vmax} shows the difference between a low and high $V_{max}$ value.} \\ \hline
 	Constant 1 ($c_1$) & Weights the evidence of the particle \\ \hline
 	Constant 2 ($c_2$) & Weights the evidence of the swarm \\ \hline
+	Particle count & Number of particles in the swarm \\ \hline
 \end{tabular}\\
 
 \begin{figure}[H]
@@ -285,7 +289,21 @@ The application is able to parse files from the OR library with the same format 
 The discrete PSO does converge towards the optimum, however it does not work optimal. The global best position remains dependent of the problem in average of about 5\% below the optimal value. One problem is the penalty function which could be optimized. It is difficult, to find a suitable penalty function for constrained values. A different approach would be to use greed algorithm or surrogate duality method. Another optimization is to use a local best position instead of the swarms best position for the calculation of the velocity. In this case, only the $n$ nearest neighbour particles are used to calculate the lBest value. A advantage of PSO is, that there are only a few parameters to adjust. Also the algorithm does converge very fast near the optimum.
 
 \section{Paper review}
-Wang, Wang, Fu and Zhe present a new novel probability update strategy for the binary discrete PSO \cite{bib-novel}.
+Wang, Wang, Fu and Zhe present a new novel probability update strategy for the binary discrete PSO \cite{bib-novel}. The extended PSO is called probability binary particle swarm optimization algorithm (PBPSO) and prevents particles to get trapped in local optima. The update strategy uses a linear Function $F(x)$ to determine if a position $x_i$ in dimension $d$ is 1 or 0. Additionally to its better optimization results, this method prevents the use of the sigmoid function which reduces the required computation time.
+
+\begin{equation}
+L(x) = (x_i - R_{min} ) / (R_{max} - R_{min})
+\end{equation}
+
+In PBPSO a particles position $x_i$ consist now of real values (no binary values). $R_{max}$ and $R_{min}$ are pre-defined constants. In each iteration, the position $x_i$ is updated according to the normal formula $x_i = x_i + v_i$. Finally, the particles binary position $px_i$ (and therefore the fitness value to calculate pBest and gBest) is updated according to the following formula.
+
+\begin{equation}
+px_i = \left\{ 
+\begin{array}{l l}
+  1 & \quad \text{$rand() <= L(x_i)$}\\
+  0 & \quad \text{otherwise}
+\end{array} \right.
+\end{equation}
 
 \newpage
 

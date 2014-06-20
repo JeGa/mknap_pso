@@ -36,6 +36,9 @@ namespace mknap_pso
             QString getVelocityString(Velocity &velocity);
             void initSwarmtable();
             int runFunction();
+            QString doTest(int problem, int particles,
+                           int iterations, double inertia,
+                           double c1, double c2, double vMax);
 
         private slots:
             void solveBtnClicked();
