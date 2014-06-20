@@ -211,10 +211,10 @@ The available parameters are explained in the following table.\\
 \begin{tabular}{|l|l|}
 	\hline
 	Inertia weight ($\omega$) & \pbox{10cm}{Specifies the impact of the current velocity to the new velocity. If the inertia weight is too high, the particles do not change their positions (they have no confidence in the other particles knowledge). Also a low $V_{max}$ could balance this, the behaviour is not very good. A too low inertia weight results in a too heavy change of the particles position. Figure \ref{fig-inertia} shows the differences between low and high inertia values.} \\ \hline
-	Maximal velocity ($V_{max}$) & \pbox{10cm}{Limits the velocity. A lesser $V_{max}$ value allows more differences in the particles position. However, it does take longer time until they converge. If the $V_{max}$ value is 2, the output velocities of the sigmoid function can only be in the range of [0.12, 0.88]. So if the velocity is very high (e.g. v = 10.0, Sig(v) = 0.88), the possibility that the particles position is 0 (1 - 0.88) is still there. Figure \ref{fig-vmax} shows the difference between a low and high $V_{max}$ value.} \\ \hline
+	Maximal velocity ($V_{max}$) & \pbox{10cm}{Limits the velocity. A lesser $V_{max}$ value allows more differences in the particles position. However, it does take longer time until they converge. If the $V_{max}$ value is 2, the output velocities of the sigmoid function can only be in the range of [0.12, 0.88]. So if the velocity is very high (e.g. v = 10.0, Sig(v) = 0.88), the possibility that the particles position is 0 (1 - 0.88) is still there. If $V_{max}$ is too high, particles can fly past good positions. If it is too small, it could be that good positions are never visited. Figure \ref{fig-vmax} shows the difference between a low and high $V_{max}$ value.} \\ \hline
 	Constant 1 ($c_1$) & Weights the evidence of the particle \\ \hline
 	Constant 2 ($c_2$) & Weights the evidence of the swarm \\ \hline
-	Particle count & Number of particles in the swarm \\ \hline
+	Particle count & \pbox{10cm}{Number of particles in the swarm. With many particles the probability of searching different areas raises. However, the with each particle the computanonal effor raises strongly too. Tests showd that a swarm size of 20 particles were totally enough to search a great area.} \\ \hline
 \end{tabular}\\
 
 \begin{figure}[H]
@@ -286,24 +286,49 @@ The application is able to parse files from the OR library with the same format 
 
 \section{Critique and improvements}
 \label{lbl-impr}
-The discrete PSO does converge towards the optimum, however it does not work optimal. The global best position remains dependent of the problem in average of about 5\% below the optimal value. One problem is the penalty function which could be optimized. It is difficult, to find a suitable penalty function for constrained values. A different approach would be to use greed algorithm or surrogate duality method. Another optimization is to use a local best position instead of the swarms best position for the calculation of the velocity. In this case, only the $n$ nearest neighbour particles are used to calculate the lBest value. A advantage of PSO is, that there are only a few parameters to adjust. Also the algorithm does converge very fast near the optimum.
+The discrete PSO does converge towards the optimum, however it does not work optimal. The global best position remains dependent of the problem in average of about 5\% below the optimal value. One problem is the penalty function which could be optimized. It is difficult, to find a suitable penalty function for constrained values. A different approach would be to use a repair mechanism to turn invalid solutions to valid solutions. Another optimization is to use a local best position instead of the swarms best position for the calculation of the velocity. In this case, only the $n$ nearest neighbour particles are used to calculate the lBest value. To further improve the algorithm, the inertia weight could be variable which changes over the iteration time (no constant). A linear change from 0.9 to 0.4 for the inertia weight would help, to search at the beginning in more global areas. With more interations PSO searches more in local areas. A advantage of PSO is, that there are only a few parameters to adjust. Also the algorithm does converge very fast near the optimum.
 
 \section{Paper review}
-Wang, Wang, Fu and Zhe present a new novel probability update strategy for the binary discrete PSO \cite{bib-novel}. The extended PSO is called probability binary particle swarm optimization algorithm (PBPSO) and prevents particles to get trapped in local optima. The update strategy uses a linear Function $F(x)$ to determine if a position $x_i$ in dimension $d$ is 1 or 0. Additionally to its better optimization results, this method prevents the use of the sigmoid function which reduces the required computation time.
+\subsection{Set-based PSO}
+In the paper \cite{bib-sets} a new novel set-based PSO method for binary discrete problems is presented (S-PSO). Instead of binary or real position and velocity lists a set-based representation scheme is used. The velocity and position updating mechanism is the same as in the original PSO. However, the terms position and velocity and its operators (addition, multiplication) were redefined to use with the set based represenation scheme. The following chapters describe the representation scheme and the velocity and position updating mechanisms. The examples are adapted to the knapsack problem.
+
+\subsection{Representation scheme}
+The universal set $E$ of $n$ dimensions consists of all the possible values of a problem. This means a knapsack problem with two elements looks like:
 
 \begin{equation}
-L(x) = (x_i - R_{min} ) / (R_{max} - R_{min})
+E = \{(1,0),(1,1),(2,0),(2,1)\}\\
+E_1 = \{(1,0),(1,1)\}\\
+E_2 = \{(2,0),(2,1)\}
 \end{equation}
 
-In PBPSO a particles position $x_i$ consist now of real values (no binary values). $R_{max}$ and $R_{min}$ are pre-defined constants. In each iteration, the position $x_i$ is updated according to the normal formula $x_i = x_i + v_i$. Finally, the particles binary position $px_i$ (and therefore the fitness value to calculate pBest and gBest) is updated according to the following formula.
+$(i,0)$ means the elemet is not selected, $(i,1)$ means the elemet is selected. A solution (position) is represented as a real subset of $E$ which is called $X$ with dimension $n$. A solution where element 1 is selected and element 2 is described as:
 
 \begin{equation}
-px_i = \left\{ 
-\begin{array}{l l}
-  1 & \quad \text{$rand() <= L(x_i)$}\\
-  0 & \quad \text{otherwise}
-\end{array} \right.
+X = \{(1,1),(2,0)\}\\
+X_1 = \{(1,1)\}\\
+X_2 = \{(2,0)\}
 \end{equation}
+
+Velocities are defined as set of elements and its possibilities. $p(e)$ describes the possibility that a particle (which position is updated by the velocity set) will use the knowledge from element $e$.
+
+\begin{equation}
+V = \{e/p(e)| e \in E\}
+\end{equation}
+
+\subsection{Operators}
+Like already mentioned, the updating formula are still the same. However, the operator functionality is redefined (gBest set - position set, constant * velocity, ...). Because they are described in detail in the paper and are not required to understand the principle of S-PSO, they are not described here.
+
+\subsection{Position updating}
+The new velocity is calculated with the original PSO formula (with the sets as variables and the changed operator functionality). After that, to update the position, elements from the velocity set $V_i$ are taken which are worth to learn from. The selected elements depend on the random variable $\alpha$. The higher $p(e)$ from the velocity set is, the higher is the probability that this element is considered to determine the new position.
+
+\begin{equation}
+Cut(V_i) = \{e/p(e)| e \in E and p(e) >= \alpha\}
+\end{equation}
+
+The new position is calculated by taking the information from the elements in $Cut(V_i)$. Additionally, it needs to be checked that the constraints are not violated by the elements from $Cut(V_i)$. If the construction of the new position is not finished (no elements in $Cut(V_i)$), the elements from the previous position are taken. If the construction is still not finished (no elements in previous position) other elements (from the universal set) are taken. Different methods to choose elements from one of those three sets can be used. it can be a random selection or a method which uses a heuristic. So the resulting new position consist of elements from $Cut(V_i)$ set, elements from the previous position and if neede some other elements. The performance capabilitie of S-PSO dependen on the number of elemets taken from $Cut(V_i)$ set. If many elements are taken, the speed of the particle is high and it searches in a wide range. If less are taken, the speed is low and only a small area is searched.
+
+\subsection{Performance}
+The S-PSO was also tested with the mknapcb1 problem from the OR library. Two versions were tested, one uses a penalty function like the implementation from this paper. The other version uses a repair mechansims to handle invalid solutions. Compared to the standard PSO which uses for velocity the probability that a element is packed into the knapsack (therefore the new position), S-PSO uses different sources to determine the new position. The velocity expresses the probability that a element is used to determine the new position. The meaning of the paramter remain still the same as in standard PSO. The tests have shown that the set based PSO performs better than the standard PSO.
 
 \newpage
 
@@ -325,6 +350,10 @@ px_i = \left\{
 		James Kennedy, Russell C. Eberhart.
 		\emph{A discrete binary version of the particle swarm algorithm}.
 		Systems, Man, and Cybernetics, 1997. Computational Cybernetics and Simulation., 1997 IEEE International Conference on.
+	\bibitem{bib-sets}
+		Wei-Neng Chen, Jun Zhang, Henry S. H. Chung, Wen-Liang Zhong, Wei-Gang Wu, Yu-hui Shi.
+		\emph{A Novel Set-Based Particle Swarm Optimization Method for Discrete Optimization Problems}.
+		IEEE TRANSACTIONS ON EVOLUTIONARY COMPUTATION, VOL. 14, NO. 2, APRIL 2010.
 \end{thebibliography}
 
 \end{document}
