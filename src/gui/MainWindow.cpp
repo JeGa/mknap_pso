@@ -4,6 +4,7 @@
 #include <QFileDialog>
 #include <QTableWidgetItem>
 #include <QTableWidget>
+#include <QTime>
 
 #include <stdexcept>
 #include <iostream>
@@ -293,7 +294,18 @@ namespace mknap_pso
 
     void MainWindow::preDefinedTestClicked()
     {
+        consoleEdit->clear();
+
         // Problem 1
+
+        consoleEdit->append("===================================");
+        consoleEdit->append("Problem 1");
+        consoleEdit->append("===================================");
+
+        consoleEdit->append(doTest(0, 30, 100000, 1.0, 10.0, 1.0, 6.0));
+
+        // TODO
+        return;
 
         // Change particle number
         consoleEdit->append(doTest(0, 5, 500, 1.0, 2.0, 2.0, 6.0));
@@ -342,15 +354,20 @@ namespace mknap_pso
                                int iterations, double inertia,
                                double c1, double c2, double vMax)
     {
-        int globalIt = 20;
+        int globalIt = 30;
         int gBest, best = INT32_MIN, worse = INT32_MAX;
+        int meanOptimumSum = 0, meanTimeSum = 0;
         QString str;
+        QTime t;
 
         Parameters p;
         p.set(particles, iterations, inertia, c1, c2, vMax);
         solver.setParameters(p);
 
         for (int j = 0; j < globalIt; ++j) {
+
+            t.start();
+
             solver.startSolveProblem(parser.getProblemsReference().at(problem));
             for (int i = 0; i < p.getIterations(); ++i)
                 runFunction();
@@ -360,8 +377,14 @@ namespace mknap_pso
                 best = gBest;
             if (gBest < worse)
                 worse = gBest;
+
+            meanOptimumSum += gBest;
+            meanTimeSum += t.elapsed();
         }
-        str = globalIt + " Iterations -> " + p.toString() + " " + QString::number(best) + ", " + QString::number(worse);
+        str = "Mean of " + QString::number(globalIt) + " iterations -> (" + p.toString() + ") " +
+              "Best value: " + QString::number(best) + ", Worst value: " + QString::number(worse) +
+              " Mean Optimum: " + QString::number((double) meanOptimumSum / globalIt) +
+              " Mean Time (ms): " + QString::number((double) meanTimeSum / globalIt);
         return str;
     }
 

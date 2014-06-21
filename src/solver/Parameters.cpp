@@ -16,11 +16,11 @@ namespace mknap_pso
         Parameters p;
 
         p.numberOfParticles = 20;
-        p.iterations = 50;
+        p.iterations = 500;
         p.inertiaWeight = 1.0;
-        p.constant1 = 1.0;
-        p.constant2 = 1.3;
-        p.vMax = 5.0;
+        p.constant1 = 10.0;
+        p.constant2 = 1.0;
+        p.vMax = 6.0;
 
         return p;
     }
