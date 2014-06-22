@@ -22,7 +22,7 @@
 \lstdefinestyle{customc++}{
   belowcaptionskip=1\baselineskip,
   breaklines=true,
-  frame=L,
+  frame=single,
   xleftmargin=\parindent,
   language=C,
   showstringspaces=false,
@@ -398,15 +398,16 @@ The new position is calculated by taking the information from the elements in $C
 \subsection{Comparison}
 The S-PSO was also tested with the \lstinline$mknapcb1.txt$ problem from the OR library. Two versions were tested, one uses a penalty function like the implementation from this paper. The other version uses a repair mechanisms to handle invalid solutions. Compared to the standard PSO which uses for velocity the probability that a element is packed into the knapsack (therefore the new position), S-PSO uses different sources to determine the new position. The velocity expresses the probability that a element is used to determine the new position (that a particle learns from this element). So the trajectory of the particles is determined by using the knowledge of elements from different sources (velocity, old position, ...) that are worth (have high probability) to learn from. The meaning of the parameter remain still the same as in standard PSO. The tests have shown that the set based PSO performs better than the standard PSO.\\
 
-The following table compares the two PSO methods with the problem 1 from \lstinline$mknapcb1.txt$. The results are a average over 30 runs. 100000 iterations are used. The best parameter settings are used. \\ 
+\newpage
+
+The following table compares the two PSO methods with the problem 1 from \lstinline$mknapcb1.txt$. The results are a average over 30 runs. 100000 iterations are used. The best parameter settings are used.\\
 
 \begin{table}
 \begin{tabular}{|l|l|l|l|l|}
 	\hline
-	Algorithm & Optimum & Best & Mean Optimum & Mean Time (ms) \\
-	\hline
-	PSO & 24381 & TODO & TODO & TODO \\ \hline
-	S-PSO & 24381 & 24381 & 24372 & 21166 \\ \hline
+	Algorithm & Optimum & Best & Mean Optimum\\ \hline
+	PSO & 24381 & 24390 & 24221\\ \hline
+	S-PSO & 24381 & 24381 & 24372\\ \hline
 \end{tabular}
 \caption{S-PSO and PSO}
 \end{table}

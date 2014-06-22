@@ -317,11 +317,6 @@ namespace mknap_pso
         consoleEdit->append("Problem 1");
         consoleEdit->append("===================================");
 
-        consoleEdit->append(doTest(0, 30, 100000, 1.0, 10.0, 1.0, 6.0));
-
-        // TODO
-        return;
-
         // Change particle number
         consoleEdit->append(doTest(0, 5, 500, 1.0, 2.0, 2.0, 6.0));
         consoleEdit->append(doTest(0, 10, 500, 1.0, 2.0, 2.0, 6.0));
