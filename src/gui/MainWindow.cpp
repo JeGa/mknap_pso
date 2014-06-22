@@ -56,6 +56,11 @@ namespace mknap_pso
 
     void MainWindow::toolbarStart()
     {
+        if (parser.getProblemsReference().size() == 0) {
+            consoleEdit->append("> No problems selected to solve.");
+            return;
+        }
+
         plot->clear();
         consoleEdit->clear();
         solver.setParameters(settingsDialog->getParameters());
@@ -125,6 +130,11 @@ namespace mknap_pso
 
     void MainWindow::solveBtnClicked()
     {
+        if (parser.getProblemsReference().size() == 0) {
+            consoleEdit->append("> No problems selected to solve.");
+            return;
+        }
+
         toolbarStart();
         for (int i = 0; i < settingsDialog->getParameters().getIterations(); ++i) {
             QString outTxt = "> Iteration: " + QString::number(i);
@@ -294,6 +304,11 @@ namespace mknap_pso
 
     void MainWindow::preDefinedTestClicked()
     {
+        if (parser.getProblemsReference().size() == 0) {
+            consoleEdit->append("> No problems selected to solve.");
+            return;
+        }
+
         consoleEdit->clear();
 
         // Problem 1
