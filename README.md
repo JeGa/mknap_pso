@@ -6,7 +6,7 @@ This application solves the multidimensional Knapsack Problem from OR Library wi
 
 
 It uses Qt for the GUI and qwt for the plots.
-For further information: [documentation](doc/elaboration.tex)
+For further information: [documentation](doc/elaboration.pdf)
 
 Problem files:  
 http://people.brunel.ac.uk/~mastjjb/jeb/orlib/files/mknapcb1.txt

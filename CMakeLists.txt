@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8.11)
 project(mknap_pso)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -g")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static -std=c++11 -Wall -g")
 
 # Qt
 set(CMAKE_AUTOMOC ON)
@@ -30,4 +30,13 @@ include_directories("include")
 include_directories(${QWT_INCLUDE_DIR})
 
 add_executable(mknap_pso ${mknap_pso_SOURCES} ${ui_SOURCES} ${qrc_SOURCES})
-target_link_libraries(mknap_pso Qt5::Widgets ${QWT_LIBRARY})
+
+if(WIN32)
+    if(CMAKE_COMPILER_IS_GNUCXX)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mwindows")
+    else(CMAKE_COMPILER_IS_GNUCXX)
+        message(SEND_ERROR "You are using an unsupported Windows compiler! (Not GCC)")
+    endif(CMAKE_COMPILER_IS_GNUCXX)
+endif(WIN32)
+
+target_link_libraries(mknap_pso ${QT_QTMAIN_LIBRARY} Qt5::Widgets ${QWT_LIBRARY})

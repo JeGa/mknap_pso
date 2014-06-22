@@ -9,6 +9,15 @@
 \usepackage{float}
 \usepackage{amsmath}
 \usepackage{pbox}
+\usepackage[bookmarksopen=true,
+			bookmarks=true,
+			plainpages=false,
+        	pdfpagelabels=true,
+			colorlinks=true,
+			linkcolor=black,
+			citecolor=black,
+        	filecolor=black,
+        	urlcolor=blue]{hyperref}
 
 \lstdefinestyle{customc++}{
   belowcaptionskip=1\baselineskip,
@@ -26,6 +35,12 @@
 
 \lstset{escapechar=@,style=customc++,captionpos=b}
 
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{HTWG Konstanz}
+\lhead{JeGa}
+\cfoot{\thepage}
+
 \begin{document}
 
 % Article top matter
@@ -42,7 +57,6 @@ Particle Swarm Optimization (PSO) is a metaheuristic search algorithm which uses
 \end{abstract}
 
 \newpage
-\cfoot[\thepage]{}
 
 \tableofcontents
 
@@ -99,7 +113,7 @@ A particle consists of the following information (figure \ref{fig-particle}):
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=250px]{images/particle.PNG}
+    \includegraphics[width=350px]{images/particle.PNG}
     \caption{Particle}
     \label{fig-particle}
 \end{figure}
@@ -110,13 +124,15 @@ This chapter describes the implementation in detail and shows some extracts from
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=180px]{images/algo.png}
+    \includegraphics[width=400px]{images/algo.png}
     \caption{Algorithm}
     \label{fig-algo}
 \end{figure}
 
+\newpage
+
 \subsection{Algorithm}
-At first, the particles are initialized with random positions and random velocities. After that, the profit of the particular solution is calculated. If the position is invalid and violates a constrained, the penalty value is calculated and subtracted from the fitness value. The fitness value is saved as pBest value. The highest profit of all particles is saved as the swarms gBest value. It is very likely, that the particles have invalid positions, so at this point the penalty values are very high.
+At first, the particles are initialized with random positions and random velocities. After that, the profit of the particular solution is calculated. If the position is invalid and violates a constrained, the penalty value is calculated and subtracted from the fitness value. The fitness value is saved as pBest value. The highest profit of all particles is saved as the swarms gBest value. It is very likely, that the particles have invalid positions, so at this point the penalty values are very high.\\
 
 \begin{lstlisting}[caption="Solver.cpp"]
 for (auto &i : swarm.getParticles()) {
@@ -168,8 +184,6 @@ if (pBestTmp > i.getBestValue()) {
 }
 \end{lstlisting}
 
-\newpage
-
 \subsection{Update strategies}
 There are several strategies available, to update the particles position based on the velocity. The current used strategy in the implementation is the original strategy from Kennedy and Eberhart \cite{bib-discrete}. The implementation of the standard update strategy is showed in the following code extract.\\
 
@@ -190,9 +204,7 @@ The variable \lstinline{velocity} is the output of the logistic transformation. 
 
 \subsection{Penalty function}
 A very important part of the algorithm is the penalty function. Because the knapsack problem has multiple constraints, invalid positions can occur. The penalty function therefore adjusts the fitness value to a valid fitness value (based on several different parameters). There are a many penalty functions to choose from. It is important, to choose a good penalty function, because it does strongly influence the optimization capabilities of PSO. If the penalty function is too weak, invalid positions are more likely and the algorithm does not perform well. If it is too large, it negatively influences the performance of PSO.\\ \\
-In this implementation, a penalty function from Oken \cite{bib-penalty} is used. It uses the current fitness value of a particles position to weight the penalty. If a solution has a very large profit and is invalid, it gets a high penalty.
-
-\newpage
+In this implementation, a penalty function from Oken \cite{bib-penalty} is used. It uses the current fitness value of a particles position to weight the penalty. If a solution has a very large profit and is invalid, it gets a high penalty.\\
 
 \begin{lstlisting}[caption="Solver.cpp"]
 // Check constraint i
@@ -217,6 +229,7 @@ if (dist) {
 \subsection{Parameter}
 The available parameters are explained in the following table.\\
 
+\begin{table}
 \begin{tabular}{|l|l|}
 	\hline
 	Inertia weight ($\omega$) & \pbox{10cm}{Specifies the impact of the current velocity to the new velocity. If the inertia weight is too high, the particles do not change their positions (they have no confidence in the other particles knowledge). Also a low $V_{max}$ could balance this, the behaviour is not very good. A too low inertia weight results in a too heavy change of the particles position. Figure \ref{fig-inertia} shows the differences between low and high inertia values.} \\ \hline
@@ -224,7 +237,9 @@ The available parameters are explained in the following table.\\
 	Constant 1 ($c_1$) & Weights the evidence of the particle. \\ \hline
 	Constant 2 ($c_2$) & Weights the evidence of the swarm. \\ \hline
 	Particle count & \pbox{10cm}{Number of particles in the swarm. With many particles the probability of searching different areas raises. However, with each particle the computational effort raises strongly too. Tests showed that a swarm size of 20 particles were totally enough to search a great area.} \\ \hline
-\end{tabular}\\
+\end{tabular}
+\caption{Parameter}
+\end{table}
 
 \begin{figure}[H]
     \centering
@@ -244,6 +259,7 @@ The available parameters are explained in the following table.\\
 \label{lbl-tests}
 For the tests, the \lstinline$mknapcb1.txt$ problems from the OR library were used.  Dependent on the problem, it can be, that the start values are very low ($< 0$). The very low start values are a result of the penalty function. Because all particles are initialized with random values, it is very likely that the particles violate a constraint and are invalid. Because of that, the particles get a very high penalty. The following table shows tests with different parameters. The first problem from \lstinline$mknapcb1.txt$ is used for the tests. The values are averaged over 30 iterations. The parameter column has the following meaning: (Number of particles, iterations, $\omega$, $c_1$, $c_2$, $V_{max}$). \\
 
+\begin{table}
 \begin{tabular}{|l|l|l|l|l|l|}
 	\hline
 	Optimum & Parameter & Best & Worst & Mean Optimum & Mean Time (ms) \\ \hline
@@ -281,6 +297,8 @@ For the tests, the \lstinline$mknapcb1.txt$ problems from the OR library were us
 	24381 & (20 500 1 2 2 10) & 23102 & 21839 & 22503.6 & 1074.47 \\ \hline
 	24381 & (20 500 1 2 2 20) & 23276 & 21441 & 22647.6 & 1079.47 \\ \hline
 \end{tabular} \\\\
+\caption{Measurement}
+\end{table}
 
 \newpage
 
@@ -293,27 +311,27 @@ The tests show that a parameter setting with a high $c_1$ value result in good o
     \label{fig-param}
 \end{figure}
 
-The implemented PSO does converge towards 5\% below the optimum. it does not work optimal, so there are some improvements to do, which are outlined in chapter \ref{lbl-impr}. However, one can see that PSO converges very fast. There are only a few steps needed, until all particles converge to a common optimum. Figure \ref{fig-p30_200it_p1} shows the gBest value of the swarm with a iteration value of 200. Figure \ref{fig-p30_200it_p1_particles} shows the particles and how they converge to a common optimum.
+The implemented PSO does converge towards 5\% below the optimum. it does not work optimal, so there are some improvements to do, which are outlined in chapter \ref{lbl-impr}. However, one can see that PSO converges very fast. There are only a few steps needed, until all particles converge to a common optimum. Figure \ref{fig-good-config} and Figure \ref{fig-bad-config} show a test run with Problem 30, 500 iterations and 20 particles from the \lstinline{mknapcb1.txt} file and with different parameter settings. In the test run for figure \ref{fig-good-config} the good parameter settings outlined above were used. For the second picture a bad parameter configuration was used ($c_1$ = 1). The graphs in each picture show the particles and the gBest value of the swarm. The result was better with the good parameter settings. In the first graphs, one can see the particles and how they converge to a common optimum. The particles in the first graph take longer time to converge. However, they change their positions more frequently which allows the particles to search in a greater area. With the bad configuration, the particles converge fast to a common optimum, however they are stuck at this position and do not try out other positions. This is a result of the $c_1$ parameter which gives the particles a high evidence to their own position. Because of that, the particles in \ref{fig-good-config} do not converge so fast to the same optimum.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=150px]{images/p30_200it_p1.PNG}
-    \caption{Global swarm optimum}
-    \label{fig-p30_200it_p1}
+    \includegraphics[width=420px]{images/p20_500it_p30_both.png}
+    \caption{Results with good configuration}
+    \label{fig-good-config}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=180px]{images/p30_200it_p1_particles.PNG}
-    \caption{Particles optimum}
-    \label{fig-p30_200it_p1_particles}
+    \includegraphics[width=420px]{images/p20_500it_p30_badConfig_both.png}
+    \caption{Results with bad configuration}
+    \label{fig-bad-config}
 \end{figure}
 
 In figure \ref{fig-particles_optimum} one can see, that all particles have almost the same pBest value.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=250px]{images/particles_optimum.PNG}
+    \includegraphics[width=300px]{images/particles_optimum2.PNG}
     \caption{Particles optimum}
     \label{fig-particles_optimum}
 \end{figure}
@@ -382,6 +400,7 @@ The S-PSO was also tested with the \lstinline$mknapcb1.txt$ problem from the OR 
 
 The following table compares the two PSO methods with the problem 1 from \lstinline$mknapcb1.txt$. The results are a average over 30 runs. 100000 iterations are used. The best parameter settings are used. \\ 
 
+\begin{table}
 \begin{tabular}{|l|l|l|l|l|}
 	\hline
 	Algorithm & Optimum & Best & Mean Optimum & Mean Time (ms) \\
@@ -389,6 +408,8 @@ The following table compares the two PSO methods with the problem 1 from \lstinl
 	PSO & 24381 & TODO & TODO & TODO \\ \hline
 	S-PSO & 24381 & 24381 & 24372 & 21166 \\ \hline
 \end{tabular}
+\caption{S-PSO and PSO}
+\end{table}
 
 \newpage
 
