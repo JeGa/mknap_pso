@@ -29,12 +29,12 @@ namespace minotaur
         if (data.size() != curves.size())
             return;
 
+        xData.append(xData.size());
+
         for (int i = 0; i < data.size(); ++i) {
             curves[i]->update(data.at(i));
             curves[i]->curve.setSamples(xData, curves[i]->yData);
         }
-
-        xData.append(xData.size());
 
         replot();
     }

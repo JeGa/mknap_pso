@@ -53,7 +53,7 @@
 \maketitle
 
 \begin{abstract}
-Particle Swarm Optimization (PSO) is a metaheuristic search algorithm which uses a swarm of solutions/particles to iteratively optimize a problem. PSO was intentionally designed by Kennedy and Eberhart \cite{bib-continues} for continues optimization problems. Later, several papers were published that cover PSO for discrete search spaces. This document describes the implementation of the discrete binary PSO algorithm to solve the multi-dimensional knapsack problem.
+Particle Swarm Optimization (PSO) is a metaheuristic search algorithm which uses a swarm of solutions/particles to iteratively optimize a problem. PSO was intentionally designed by Kennedy and Eberhart \cite{bib-continues} for continuous optimization problems. Later, several papers were published that cover PSO for discrete search spaces. This document describes the implementation of the discrete binary PSO algorithm to solve the multi-dimensional knapsack problem.
 \end{abstract}
 
 \newpage
@@ -64,12 +64,12 @@ Particle Swarm Optimization (PSO) is a metaheuristic search algorithm which uses
 
 \section{Introduction}
 \label{lbl-intro}
-Because PSO was designed for continues problems, some changes for the algorithm are required to use it for discrete problems. This document covers shortly the PSO for continues problems (\ref{lbl-pso-cont}) and the changes needed to use PSO for discrete problems (\ref{lbl-pso-disc}). The next chapter (\ref{lbl-mknap}) describes the multidimensional knapsack problem and the adaption to PSO.
-Implementation details are outlined in chapter \ref{lbl-impl}. After that the performance of the algorithm and implementation is analysed (\ref{lbl-tests}). The application and the improvements that can be made are described in chapter \ref{lbl-app} and \ref{lbl-impr}. At last, a paper which presents improvements for the discrete binary PSO is reviewed (\ref{lbl-rev}).
+Because PSO was designed for continuous problems, some changes for the algorithm are required to use it for discrete problems. This document covers shortly the PSO for continuous problems (\ref{lbl-pso-cont}) and the changes needed to use PSO for discrete problems (\ref{lbl-pso-disc}). The next chapter (\ref{lbl-mknap}) describes the multidimensional knapsack problem and the adaption to PSO.
+Implementation details are outlined in chapter \ref{lbl-impl}. After that the performance of the algorithm and implementation are analysed (\ref{lbl-tests}). The application and the improvements that can be made are described in chapter \ref{lbl-app} and \ref{lbl-impr}. At last, a paper which presents improvements for the discrete binary PSO is reviewed (\ref{lbl-rev}).
 
-\section{PSO for continues problems}
+\section{PSO for continuous problems}
 \label{lbl-pso-cont}
-Particle Swarm Optimization is a swarm algorithm based on the flocking behaviour of birds, where a swarm of birds searches for food. Every bird (particle) uses its own knowledge (cognitive part) and the swarms knowledge (social part) to direct its search towards the food. In PSO, a particle represents a possible solution. It consist of a position $x_i$ and a velocity $v_i$. Each particle saves its best position (particle best - $x_{pbest}$). Additionally the best position of all particles in the swarm is saved (global best - $x_{gbest}$). Each particle updates its position based on its current velocity, its best position and the swarms global best position. If the problem is multidimensional, based on each dimension $d$ of the solution vector, the new velocity/position must be calculated.
+Particle Swarm Optimization is a swarm algorithm based on the flocking behaviour of birds, where a swarm of birds searches for food. Every bird (particle) uses its own knowledge (cognitive part) and the swarm's knowledge (social part) to direct its search towards the food. In PSO, a particle represents a possible solution. It consist of a position $x_i$ and a velocity $v_i$. Each particle saves its best position (particle best - $x_{pbest}$). Additionally the best position of all particles in the swarm is saved (global best - $x_{gbest}$). Each particle updates its position based on its current velocity, its best position and the swarms global best position. If the problem is multidimensional, based on each dimension $d$ of the solution vector, the new velocity/position must be calculated.
 \begin{equation}
 \label{formula-1}
 v_i = \omega * v_i + c_1 * rand_1 * (x_{pbest} - x_i) + c_2 * rand_2 * (x_{gbest} - x_i)
@@ -79,7 +79,7 @@ v_i = \omega * v_i + c_1 * rand_1 * (x_{pbest} - x_i) + c_2 * rand_2 * (x_{gbest
 x_i = x_i + v_i
 \end{equation}
 
-$\omega$ is the inertia weight which specify how strong the current velocity contributes to the new velocity. $c_1$ and $c_2$ are constants which weight the personal and the swarms evidence. $rand_1$ and $rand_2$ are random values from $[0,1]$. Additionally, the new velocity $v_i$ is limited by a constant $v_{max}$.
+$\omega$ is the inertia weight which specifies how strongly the current velocity contributes to the new velocity. $c_1$ and $c_2$ are constants which weight the personal and the swarm's evidence. $rand_1$ and $rand_2$ are random values from $[0,1]$. Additionally, the new velocity $v_i$ is limited by a constant $v_{max}$.
 
 \section{PSO for discrete binary problems}
 \label{lbl-pso-disc}
@@ -89,7 +89,7 @@ To use PSO for discrete binary problems, some changes in the algorithm are requi
 S(v_i) = 1.0 / (1.0 + e^{(-v_i)})
 \end{equation}
 
-The output of formula \ref{formula-3} is a velocity limited with the sigmoid function to $[0.0, 1.0]$. To calculate the new position, an update strategy is needed. The used update strategy is the original strategy from Kennedy and Eberhart \cite{bib-discrete}.
+The output of formula \ref{formula-3} is a velocity limited with the sigmoid function to $[0.0, 1.0]$. To calculate the new position, an update strategy is needed. The update strategy used is the original strategy from Kennedy and Eberhart \cite{bib-discrete}.
 
 \begin{equation}
 p_i = \left\{ 
@@ -102,7 +102,7 @@ p_i = \left\{
 
 \section{Multidimensional knapsack problem}
 \label{lbl-mknap}
-Because the multidimensional (multi-constraint) knapsack problem is already described in detail in a lot of papers, it is only briefly described here. To sum up, a number of elements need to be packed into a knapsack. Each element has a profit value, and several constraint values. The aim is, to maximize the profit (fitness value) while not violating any constraint. A solution is described as a binary vector with the dimension as the number of elements to pack. 1 means the element is in the knapsack, 0 means it is not in the knapsack. \\ An important addition to the traditional discrete PSO are the constraint values. Special care has to be taken to identify invalid solutions.\\
+Because the multidimensional (multi-constraint) knapsack problem is already described in detail in a lot of papers, it is only briefly described here. To sum up, a number of elements need to be packed into a knapsack. Each element has a profit value and several constraint values. The aim is, to maximize the profit (fitness value) while not violating any constraint. A solution is described as a binary vector with the dimension as the number of elements to pack. 1 means the element is in the knapsack, 0 means it is not in the knapsack. \\ An important addition to the traditional discrete PSO are the constraint values. Special care has to be taken to identify invalid solutions.\\
 
 A particle consists of the following information (figure \ref{fig-particle}):
 \begin{itemize}
@@ -132,7 +132,7 @@ This chapter describes the implementation in detail and shows some extracts from
 \newpage
 
 \subsection{Algorithm}
-At first, the particles are initialized with random positions and random velocities. After that, the profit of the particular solution is calculated. If the position is invalid and violates a constrained, the penalty value is calculated and subtracted from the fitness value. The fitness value is saved as pBest value. The highest profit of all particles is saved as the swarms gBest value. It is very likely, that the particles have invalid positions, so at this point the penalty values are very high.\\
+At first, the particles are initialized with random positions and random velocities. After that, the profit of the particular solution is calculated. If the position is invalid and violates a constrained, the penalty value is calculated and subtracted from the fitness value. The fitness value is saved as pBest value. The highest profit of all particles is saved as the swarm's gBest value. It is very likely, that the particles have invalid positions, so at this point the penalty values are very high.\\
 
 \begin{lstlisting}[caption="Solver.cpp"]
 for (auto &i : swarm.getParticles()) {
@@ -168,7 +168,7 @@ int newPositionD = updateStrategy->updatePosition(
 	currentPositionD, newVelocityD);
 \end{lstlisting}
 
-At last, the profit and the penalty values are calculated. With this information the pBest and gBest values can be updated. If the particles current fitness value is higher than its pBest value, the current value is the new pBest. If this is true, this value could be better than the swarms gBest value. So gBest is updated if pBest is higher.\\
+At last, the profit and the penalty values are calculated. With this information the pBest and gBest values can be updated. If the particles current fitness value is higher than its pBest value, the current value is the new pBest. If this is true, this value could be better than the swarm's gBest value. So gBest is updated if pBest is higher.\\
 
 \begin{lstlisting}[caption="Solver.cpp"]
 int pBestTmp = calculateProfit(i.getPosition());
@@ -185,7 +185,7 @@ if (pBestTmp > i.getBestValue()) {
 \end{lstlisting}
 
 \subsection{Update strategies}
-There are several strategies available, to update the particles position based on the velocity. The current used strategy in the implementation is the original strategy from Kennedy and Eberhart \cite{bib-discrete}. The implementation of the standard update strategy is showed in the following code extract.\\
+There are several strategies available, to update the particles position based on the velocity. The currently used strategy in the implementation is the original strategy from Kennedy and Eberhart \cite{bib-discrete}. The implementation of the standard update strategy is shown in the following code extract.\\
 
 \begin{lstlisting}[caption="UpdateStrategy.cpp"]
 // Logistic transformation
@@ -200,7 +200,7 @@ else
     newPositionD = 0;
 \end{lstlisting}
 
-The variable \lstinline{velocity} is the output of the logistic transformation. If the velocity is high, the probability of the position in the current dimension that it gets the value 1 is high. The probability that the value is 0 is low.
+The variable \lstinline{velocity} is the output of the logistic transformation. If the velocity is high, the probability that the position in the current dimension gets the value 1 is high. The probability that the value is 0 is low.
 
 \subsection{Penalty function}
 A very important part of the algorithm is the penalty function. Because the knapsack problem has multiple constraints, invalid positions can occur. The penalty function therefore adjusts the fitness value to a valid fitness value (based on several different parameters). There are a many penalty functions to choose from. It is important, to choose a good penalty function, because it does strongly influence the optimization capabilities of PSO. If the penalty function is too weak, invalid positions are more likely and the algorithm does not perform well. If it is too large, it negatively influences the performance of PSO.\\ \\
@@ -226,17 +226,17 @@ if (dist) {
 
 \lstinline{dist} is the difference between the constraints maximal capacity and the current (invalid) capacity. \lstinline{diff} is the minimum of the violated constraints maximal capacity and all other constraints capacity minus the current violated constraints capacity.
 
-\subsection{Parameter}
+\subsection{Parameters}
 The available parameters are explained in the following table.\\
 
 \begin{table}
 \begin{tabular}{|l|l|}
 	\hline
 	Inertia weight ($\omega$) & \pbox{10cm}{Specifies the impact of the current velocity to the new velocity. If the inertia weight is too high, the particles do not change their positions (they have no confidence in the other particles knowledge). Also a low $V_{max}$ could balance this, the behaviour is not very good. A too low inertia weight results in a too heavy change of the particles position. Figure \ref{fig-inertia} shows the differences between low and high inertia values.} \\ \hline
-	Maximal velocity ($V_{max}$) & \pbox{10cm}{Limits the velocity. A lesser $V_{max}$ value allows more differences in the particles position. However, it does take longer time until they converge. If the $V_{max}$ value is 2, the output velocities of the sigmoid function can only be in the range of [0.12, 0.88]. So if the velocity is very high (e.g. v = 10.0, Sig(v) = 0.88), the possibility that the particles position is 0 (1 - 0.88) is still there. If $V_{max}$ is too high, particles can fly past good positions. If it is too small, it could be that good positions are never visited. Figure \ref{fig-vmax} shows the difference between a low and high $V_{max}$ value.} \\ \hline
+	Maximal velocity ($V_{max}$) & \pbox{10cm}{Limits the velocity. A lesser $V_{max}$ value allows more differences in the particle's position. However, it does take a  longer time until they converge. If the $V_{max}$ value is 2, the output velocities of the sigmoid function can only be in the range of [0.12, 0.88]. So if the velocity is very high (e.g. v = 10.0, Sig(v) = 0.88), the possibility that the particle's position is 0 (1 - 0.88) is still there. If $V_{max}$ is too high, particles can fly past good positions. If it is too small, it could be that good positions are never visited. Figure \ref{fig-vmax} shows the difference between a low and high $V_{max}$ value.} \\ \hline
 	Constant 1 ($c_1$) & Weights the evidence of the particle. \\ \hline
 	Constant 2 ($c_2$) & Weights the evidence of the swarm. \\ \hline
-	Particle count & \pbox{10cm}{Number of particles in the swarm. With many particles the probability of searching different areas raises. However, with each particle the computational effort raises strongly too. Tests showed that a swarm size of 20 particles were totally enough to search a great area.} \\ \hline
+	Particle count & \pbox{10cm}{Number of particles in the swarm. With many particles the probability of searching different areas rises. However, with each particle the computational effort raises strongly too. Tests showed that a swarm size of 20 particles was totally enough to search a great area.} \\ \hline
 \end{tabular}
 \caption{Parameter}
 \end{table}
@@ -257,12 +257,12 @@ The available parameters are explained in the following table.\\
 
 \section{Tests}
 \label{lbl-tests}
-For the tests, the \lstinline$mknapcb1.txt$ problems from the OR library were used.  Dependent on the problem, it can be, that the start values are very low ($< 0$). The very low start values are a result of the penalty function. Because all particles are initialized with random values, it is very likely that the particles violate a constraint and are invalid. Because of that, the particles get a very high penalty. The following table shows tests with different parameters. The first problem from \lstinline$mknapcb1.txt$ is used for the tests. The values are averaged over 30 iterations. The parameter column has the following meaning: (Number of particles, iterations, $\omega$, $c_1$, $c_2$, $V_{max}$). \\
+For the tests, the \lstinline$mknapcb1.txt$ problems from the OR library were used.  Depending on the problem, it can be, that the start values are very low ($< 0$). The very low start values are a result of the penalty function. Because all particles are initialized with random values, it is very likely that the particles violate a constraint and are invalid. Because of that, the particles get a very high penalty. The following table shows tests with different parameters. The first problem from \lstinline$mknapcb1.txt$ is used for the tests. The values are averaged over 30 iterations. The parameters column has the following meaning: (Number of particles, iterations, $\omega$, $c_1$, $c_2$, $V_{max}$). \\
 
 \begin{table}
 \begin{tabular}{|l|l|l|l|l|l|}
 	\hline
-	Optimum & Parameter & Best & Worst & Mean Optimum & Mean Time (ms) \\ \hline
+	Optimum & Parameters & Best & Worst & Mean Optimum & Mean Time (ms) \\ \hline
 	24381 & (5 500 1 2 2 6) & 22980 & 19880 & 21310.5 & 271.233 \\ \hline
 	24381 & (10 500 1 2 2 6) & 22910 & 20463 & 22017 & 546.533 \\ \hline
 	24381 & (15 500 1 2 2 6) & 23339 & 21801 & 22552.7 & 824.967 \\ \hline
@@ -302,7 +302,7 @@ For the tests, the \lstinline$mknapcb1.txt$ problems from the OR library were us
 
 \newpage
 
-The tests show that a parameter setting with a high $c_1$ value result in good optimization capabilities (fitness value 24229, optimal fitness value 24381). The best found configuration is displayed in figure \ref{fig-param}.
+The tests show that a parameter setting with a high $c_1$ value results in good optimization capabilities (fitness value 24229, optimal fitness value 24381). The best configuration found is displayed in figure \ref{fig-param}.
 
 \begin{figure}[H]
     \centering
@@ -311,7 +311,7 @@ The tests show that a parameter setting with a high $c_1$ value result in good o
     \label{fig-param}
 \end{figure}
 
-The implemented PSO does converge towards 5\% below the optimum. it does not work optimal, so there are some improvements to do, which are outlined in chapter \ref{lbl-impr}. However, one can see that PSO converges very fast. There are only a few steps needed, until all particles converge to a common optimum. Figure \ref{fig-good-config} and Figure \ref{fig-bad-config} show a test run with Problem 30, 500 iterations and 20 particles from the \lstinline{mknapcb1.txt} file and with different parameter settings. In the test run for figure \ref{fig-good-config} the good parameter settings outlined above were used. For the second picture a bad parameter configuration was used ($c_1$ = 1). The graphs in each picture show the particles and the gBest value of the swarm. The result was better with the good parameter settings. In the first graphs, one can see the particles and how they converge to a common optimum. The particles in the first graph take longer time to converge. However, they change their positions more frequently which allows the particles to search in a greater area. With the bad configuration, the particles converge fast to a common optimum, however they are stuck at this position and do not try out other positions. This is a result of the $c_1$ parameter which gives the particles a high evidence to their own position. Because of that, the particles in \ref{fig-good-config} do not converge so fast to the same optimum.
+The implemented PSO does converge towards 5\% below the optimum. It does not work optimally, so there are some improvements to make, which are outlined in chapter \ref{lbl-impr}. However, one can see that the PSO converges very quickly. There are only a few steps needed, until all particles converge to a common optimum. Figure \ref{fig-good-config} and Figure \ref{fig-bad-config} show a test run with Problem 30, 500 iterations and 20 particles from the \lstinline{mknapcb1.txt} file and with different parameter settings. In the test run for figure \ref{fig-good-config} the good parameter settings outlined above were used. For the second picture a bad parameter configuration was used ($c_1$ = 1). The graphs in each picture show the particles and the gBest value of the swarm. The result was better with the good parameter settings. In the first graphs, one can see the particles and how they converge to a common optimum. The particles in the first graph take longer time to converge. However, they change their positions more frequently which allows the particles to search in a greater area. With the bad configuration, the particles converge fast to a common optimum, however they are stuck at this position and do not try out other positions. This is a result of the $c_1$ parameter which gives the particles a high evidence to their own position. Because of that, the particles in \ref{fig-good-config} do not converge so fast to the same optimum.
 
 \begin{figure}[H]
     \centering
@@ -338,7 +338,7 @@ In figure \ref{fig-particles_optimum} one can see, that all particles have almos
 
 \section{Application}
 \label{lbl-app}
-The application is written in C++11 and uses Qt for the graphical user interface (GUI). It is able to parse files from the OR library with the same format as $mknapcb1.txt$. The GUI   provides tables to view the problems and its values. The user is able to set different parameters via the File-settings dialogue. He can choose between automatic or manual (step by step) iteration. Note that the GUI is made only for testing purpose, so there are still some improvements to do. The algorithm is done in the GUI thread, so the GUI blocks (algorithm needs a worker thread). To run the algorithm, a problem file has to be parsed. After that, a problem can be selected from the table. With the button "Solve Problem" the algorithm is started. The parameters can be set with "File-set parameter".
+The application is written in C++11 and uses Qt for the graphical user interface (GUI). It is able to parse files from the OR library with the same format as $mknapcb1.txt$. The GUI   provides tables to view the problems and its values. The user is able to set different parameters via the File-settings dialogue. He can choose between automatic or manual (step by step) iteration. Note that the GUI is made only for testing purposes, so there are still some improvements to make. The algorithm is done in the GUI thread, so the GUI blocks (the algorithm needs a worker thread). To run the algorithm, a problem file has to be parsed. After that, a problem can be selected from the table. With the button "Solve Problem" the algorithm is started. The parameters can be set with "File-set parameter".
 
 \begin{figure}[H]
     \centering
@@ -347,14 +347,14 @@ The application is written in C++11 and uses Qt for the graphical user interface
     \label{fig-app}
 \end{figure}
 
-\section{Critique and improvements}
+\section{Critique and Improvements}
 \label{lbl-impr}
-The discrete PSO does converge towards the optimum, however it does not work optimal. The global best position remains dependent of the problem in average of about 5\% below the optimal value. One problem is the penalty function which could be optimized. It is difficult, to find a suitable penalty function for constrained values. A different approach would be to use a repair mechanism to turn invalid solutions to valid solutions. Another optimization is to use a local best position instead of the swarms best position for the calculation of the velocity. In this case, only the $n$ nearest neighbour particles are used to calculate the lBest value. To further improve the algorithm, the inertia weight could be variable which changes over the iteration time (no constant). A linear change from 0.9 to 0.4 for the inertia weight would help, to search at the beginning in more local areas. With more iterations PSO searches more in global areas. A advantage of PSO is, that there are only a few parameters to adjust. Also the algorithm does converge very fast near the optimum. The tests showed that the algorithm is very robust against changes to different parameters. The most parameter settings resulted in quite a good performance.
+The discrete PSO does converge towards the optimum, however it does not work optimally. The global best position remains, depending on the problem, on average about 5\% below the optimal value. One problem is the penalty function which could be optimized. It is difficult, to find a suitable penalty function for constrained values. A different approach would be to use a repair mechanism to turn invalid solutions to valid solutions. Another optimization is to use a local best position instead of the swarm's best position for the calculation of the velocity. In this case, only the $n$ nearest neighbour particles are used to calculate the lBest value. To further improve the algorithm, the inertia weight could be a variable which changes over the iteration time (no constant). A linear change from 0.9 to 0.4 for the inertia weight would help, to search at the beginning in more local areas. With more iterations PSO searches more in global areas. A advantage of PSO is, that there are only a few parameters to adjust. Also the algorithm does converge very quickly near the optimum. The tests showed that the algorithm is very robust against changes to different parameters. Most parameter settings resulted in quite a good performance.
 
-\section{Paper review}
+\section{Paper Review}
 \label{lbl-rev}
 \subsection{Set-based PSO}
-In the paper \cite{bib-sets} a new novel set-based PSO method for binary discrete problems is presented (S-PSO). Instead of binary or real position and velocity lists, a set-based representation scheme is used. The velocity and position updating mechanism is the same as in the original PSO. However, the terms position and velocity and its operators (addition, multiplication) were redefined to use with the set based representation scheme. The following chapters describe the representation scheme and the velocity and position updating mechanisms. The examples are adapted to the knapsack problem.
+In the paper \cite{bib-sets} a novel set-based PSO method for binary discrete problems is presented (S-PSO). Instead of binary or real position and velocity lists, a set-based representation scheme is used. The velocity and position updating mechanism is the same as in the original PSO. However, the terms position and velocity and its operators (addition, multiplication) were redefined to use with the set based representation scheme. The following chapters describe the representation scheme and the velocity/position updating mechanisms. The examples are adapted to the knapsack problem.
 
 \subsection{Representation scheme}
 The universal set $E$ of $n$ dimensions consists of all the possible values of a problem. This means a knapsack problem with two elements looks like:
@@ -367,7 +367,7 @@ E_2 &= \{(2,0),(2,1)\}
 \end{aligned}
 \end{equation}
 
-$(i,0)$ means the elemet is not selected, $(i,1)$ means the elemet is selected. A solution (position) is represented as a real subset of $E$ which is called $X$ with dimension $n$. A solution where element 1 is selected and element 2 not is described as:
+$(i,0)$ means the element is not selected, $(i,1)$ means the element is selected. A solution (position) is represented as a real subset of $E$ which is called $X$ with dimension $n$. A solution where element 1 is selected and element 2 not is described as:
 
 \begin{equation}
 \begin{aligned}
@@ -377,17 +377,17 @@ X_2 &= \{(2,0)\}
 \end{aligned}
 \end{equation}
 
-Velocities are defined as set of elements and its possibilities. $p(e)$ describes the possibility that a particle (which position is updated by the velocity set) will use the knowledge from element $e$.
+Velocities are defined as a set of elements and its possibilities. $p(e)$ describes the possibility that a particle (whose position is updated by the velocity set) will use the knowledge from element $e$.
 
 \begin{equation}
 V = \{e/p(e)| e \in E\}
 \end{equation}
 
 \subsection{Operators}
-Like already mentioned, the updating formula are still the same. However, the operator functionality is redefined (gBest set - position set, constant * velocity, ...). Because they are described in detail in the paper and are not required to understand the principle of S-PSO, they are not described here.
+Like already mentioned, the updating formulas are still the same. However, the operator functionality is redefined (gBest set - position set, constant * velocity, ...). Because they are described in detail in the paper and are not required to understand the principle of S-PSO, they are not described here.
 
 \subsection{Position updating}
-The new velocity is calculated with the original PSO formula (with the sets as variables and the changed operator functionality). After that, to update the position, elements from the velocity set $V_i$ are taken which are worth to learn from. The selected elements depend on the random variable $\alpha$. The higher $p(e)$ from the velocity set is, the higher is the probability that this element is considered to determine the new position.
+The new velocity is calculated with the original PSO formula (with the sets as variables and the changed operator functionality). After that, to update the position, elements from the velocity set $V_i$ are taken which are worthy to learn from. The selected elements depend on the random variable $\alpha$. The higher $p(e)$ from the velocity set is, the higher is the probability that this element is considered to determine the new position.
 
 \begin{equation}
 Cut(V_i) = \{e/p(e)| e \in V_i \, and \, p(e) >= \alpha\}
@@ -396,13 +396,13 @@ Cut(V_i) = \{e/p(e)| e \in V_i \, and \, p(e) >= \alpha\}
 The new position is calculated by taking the information from the elements in $Cut(V_i)$. Additionally, it needs to be checked that the constraints are not violated by the elements from $Cut(V_i)$. If the construction of the new position is not finished (no elements in $Cut(V_i)$), the elements from the previous position are taken. If the construction is still not finished (no elements in previous position) other elements (from the universal set) are taken. Different methods to choose elements from one of those three sets can be used. It can be a random selection or a method which uses a heuristic approach. So the resulting new position consist of elements from $Cut(V_i)$ set, elements from the previous position and if needed some other elements. The performance capabilities of S-PSO depend on the number of elements taken from $Cut(V_i)$ set. If many elements are taken, the speed of the particle is high and it searches in a wide range. If less are taken, the speed is low and only a small area is searched.
 
 \subsection{Comparison}
-The S-PSO was also tested with the \lstinline$mknapcb1.txt$ problem from the OR library. Two versions were tested, one uses a penalty function like the implementation from this paper. The other version uses a repair mechanisms to handle invalid solutions. Compared to the standard PSO which uses for velocity the probability that a element is packed into the knapsack (therefore the new position), S-PSO uses different sources to determine the new position. The velocity expresses the probability that a element is used to determine the new position (that a particle learns from this element). So the trajectory of the particles is determined by using the knowledge of elements from different sources (velocity, old position, ...) that are worth (have high probability) to learn from. The meaning of the parameter remain still the same as in standard PSO. The tests have shown that the set based PSO performs better than the standard PSO.\\
+The S-PSO was also tested with the \lstinline$mknapcb1.txt$ problem from the OR library. Two versions were tested, one uses a penalty function like the implementation from this paper. The other version uses a repair mechanism to handle invalid solutions. Compared to the standard PSO which uses for velocity the probability that a element is packed into the knapsack (therefore the new position), S-PSO uses different sources to determine the new position. The velocity expresses the probability that a element is used to determine the new position (that a particle learns from this element). So the trajectory of the particles is determined by using the knowledge of elements from different sources (velocity, old position, ...) that are worthy (have high probability) to learn from. The meaning of the parameters remain still the same as in standard PSO. The tests have shown that the set based PSO performs better than the standard PSO.
 
 \newpage
 
 The following table compares the two PSO methods with the problem 1 from \lstinline$mknapcb1.txt$. The results are a average over 30 runs. 100000 iterations are used. The best parameter settings are used.\\
 
-\begin{table}
+\begin{table}[h]
 \begin{tabular}{|l|l|l|l|l|}
 	\hline
 	Algorithm & Optimum & Best & Mean Optimum\\ \hline
